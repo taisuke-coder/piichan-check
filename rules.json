@@ -11,11 +11,11 @@
         "skirt_length": false,
         "sock_length": {
           "mode": "notice",
-          "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックスを履いてるか、自分でチェックしてね〜♪"
+          "message": "ズボンに隠れて確認できません。制定の紺ソックスを履いているか、自分でチェックしてね。"
         },
         "under_jacket": {
           "expected_visible": "shirt",
-          "notes": "正装はジャケットの下にYシャツだけだよ〜！ベストやセーターはお休みね♪"
+          "notes": "正装はジャケットの下にYシャツのみ。ベスト・セーターは不可。"
         }
       }
     },
@@ -28,7 +28,7 @@
       "needs_bottoms_type": false,
       "checks": {
         "skirt_length": true,
-        "sock_length": { "expected": "high", "notes": "正装は制定の紺ハイソックスだよ〜♪" }
+        "sock_length": { "expected": "high", "notes": "正装は制定の紺ハイソックス。" }
       }
     },
     {
@@ -42,7 +42,7 @@
         "skirt_length": false,
         "sock_length": {
           "mode": "notice",
-          "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+          "message": "ズボンに隠れて確認できません。制定の紺ソックスか同型同色を履いているか、自分でチェックしてね。"
         }
       }
     },
@@ -59,14 +59,14 @@
           "sock_length": {
             "expected": ["high", "short"],
             "ankle_forbidden": true,
-            "notes": "ハイソックス か 男子用短め(同型同色までOK)だよ〜！くるぶし丈はNGだから気をつけてね♪"
+            "notes": "ハイソックス または男子用短め(同型同色まで可)。くるぶし丈は不可。"
           }
         },
         "pants": {
           "skirt_length": false,
           "sock_length": {
             "mode": "notice",
-            "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+            "message": "ズボンに隠れて確認できません。制定の紺ソックスか同型同色を履いているか、自分でチェックしてね。"
           }
         }
       }
@@ -82,7 +82,7 @@
         "skirt_length": false,
         "sock_length": {
           "mode": "notice",
-          "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+          "message": "ズボンに隠れて確認できません。制定の紺ソックスか同型同色を履いているか、自分でチェックしてね。"
         }
       }
     },
@@ -99,14 +99,14 @@
           "sock_length": {
             "expected": ["high", "short"],
             "ankle_forbidden": true,
-            "notes": "ハイソックス か 男子用短め(同型同色までOK)だよ〜！くるぶし丈はNGだから気をつけてね♪"
+            "notes": "ハイソックス または男子用短め(同型同色まで可)。くるぶし丈は不可。"
           }
         },
         "pants": {
           "skirt_length": false,
           "sock_length": {
             "mode": "notice",
-            "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+            "message": "ズボンに隠れて確認できません。制定の紺ソックスか同型同色を履いているか、自分でチェックしてね。"
           }
         }
       }

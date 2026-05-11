@@ -100,38 +100,47 @@
   }
   .mode-btn {
     border: none;
-    padding: 28px 20px 24px;
+    padding: 32px 24px 28px;
     border-radius: 24px;
     text-align: left;
     cursor: pointer;
-    transition: transform 0.18s ease;
+    transition: transform 0.2s ease;
     font-family: inherit;
     background: #f5f0e0;
     color: #0a0a0a;
     position: relative;
     overflow: hidden;
+    min-height: 156px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
   .mode-btn:hover { transform: translateY(-2px); }
   .mode-btn:active { transform: scale(0.98); }
-  .mode-btn .icon {
-    font-size: 40px;
-    line-height: 1;
-    margin-bottom: 16px;
-  }
   .mode-btn .title {
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
     color: inherit;
-    line-height: 1.25;
   }
   .mode-btn .sub {
     font-size: 13px;
-    margin-top: 4px;
+    margin-top: 16px;
     font-weight: 500;
-    opacity: 0.7;
+    opacity: 0.65;
     color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
+  .mode-btn .arrow {
+    font-size: 18px;
+    font-weight: 300;
+    transition: transform 0.2s ease;
+  }
+  .mode-btn:hover .arrow { transform: translateX(4px); }
   /* 6-color brand palette cycle */
   .mode-btn[data-color="teal"]     { background: #1a3a3a; color: #ffffff; }
   .mode-btn[data-color="pink"]     { background: #ff4d8b; color: #ffffff; }
@@ -271,22 +280,26 @@
     font-size: 15px;
     line-height: 1.7;
     text-align: center;
-    padding: 56px 24px;
+    padding: 60px 24px;
     font-weight: 400;
   }
-  .empty-state .big {
-    font-size: 64px;
-    margin-bottom: 20px;
-    line-height: 1;
+  .empty-state .icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 20px;
+    display: block;
+    color: #c4b8a8;
   }
-  .empty-state strong {
+  .empty-state .message {
+    font-size: 16px;
     color: #0a0a0a;
-    font-weight: 600;
+    margin-bottom: 6px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
   }
   .empty-state .hint {
     color: #9a9a9a;
     display: block;
-    margin-top: 12px;
     font-size: 13px;
   }
   .loading {
@@ -443,8 +456,8 @@
   /* ===== Mobile ===== */
   @media (max-width: 640px) {
     .mode-screen h2 { font-size: 32px; letter-spacing: -1px; }
-    .mode-btn { padding: 24px 16px 20px; }
-    .mode-btn .icon { font-size: 36px; }
+    .mode-btn { padding: 28px 20px 24px; min-height: 140px; }
+    .mode-btn .title { font-size: 20px; }
     .sub-card h3 { font-size: 20px; }
     .summary { font-size: 20px; padding: 24px 20px; }
   }
@@ -454,7 +467,7 @@
 
 <header>
   <h1>身だしなみセルフチェック</h1>
-  <div class="phase">🐥 ピーちゃんと一緒にかくにん</div>
+  <div class="phase">ピーちゃんと一緒にかくにん</div>
 </header>
 
 <!-- ===== Mode selection ===== -->
@@ -463,8 +476,8 @@
   <h2>今日はどの制服？</h2>
   <div id="modeGrid" class="mode-grid"></div>
   <div class="privacy-note">
-    📱 写真はぜんぶこの端末の中だけで処理されるよ。<br>
-    どこにも送信されないから安心してね。
+    写真はすべてこの端末の中だけで処理されます。<br>
+    外部に送信されることはありません。
   </div>
 </section>
 
@@ -489,17 +502,20 @@
 
   <div class="canvas-wrap">
     <div class="empty-state" id="emptyState">
-      <div class="big">🐥📸</div>
-      <strong>写真を撮る</strong> か <strong>アルバムから選ぶ</strong> でね♪
-      <span class="hint">ピーちゃんが全身をチェックするよ〜</span>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.17a2 2 0 0 0 1.42-.59l1.83-1.83a2 2 0 0 1 1.42-.59h2.32a2 2 0 0 1 1.42.59l1.83 1.83a2 2 0 0 0 1.42.59H19a2 2 0 0 1 2 2v11Z"/>
+        <circle cx="12" cy="13" r="3.2"/>
+      </svg>
+      <div class="message">写真を撮るかアルバムから選ぼう</div>
+      <span class="hint">全身が映った写真をピーちゃんがチェックします</span>
     </div>
     <canvas id="resultCanvas" class="hidden"></canvas>
-    <div class="loading hidden" id="loading">🐥 ピーちゃんが見てるよ...</div>
+    <div class="loading hidden" id="loading">ピーちゃんがチェック中…</div>
   </div>
 
   <div class="actions">
-    <button id="cameraBtn">📷 カメラで撮影</button>
-    <button id="galleryBtn" class="secondary">🖼 アルバムから選ぶ</button>
+    <button id="cameraBtn">カメラで撮影</button>
+    <button id="galleryBtn" class="secondary">アルバムから選ぶ</button>
   </div>
 
   <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
@@ -577,9 +593,11 @@
       btn.className = 'mode-btn';
       btn.dataset.color = BRAND_COLORS[i % BRAND_COLORS.length];
       btn.innerHTML = `
-        <div class="icon">${mode.icon}</div>
         <div class="title">${mode.label}</div>
-        <div class="sub">${mode.season_label}</div>
+        <div class="sub">
+          <span>${mode.season_label}</span>
+          <span class="arrow">→</span>
+        </div>
       `;
       btn.addEventListener('click', () => handleModeClick(mode));
       modeGrid.appendChild(btn);
@@ -682,21 +700,21 @@
     const c = getEffectiveChecks();
 
     addCheck('skirt', 'スカート丈',
-      c.skirt_length === true ? 'これからチェックするよ〜🐥' : '今回はおやすみ〜♪',
+      c.skirt_length === true ? 'これからチェック' : '対象外',
       c.skirt_length === true ? null : 'disabled', '');
 
     const sockRule = c.sock_length;
     if (!sockRule) {
-      addCheck('sock', 'ソックス丈', '今回はおやすみ〜♪', 'disabled', '');
+      addCheck('sock', 'ソックス丈', '対象外', 'disabled', '');
     } else if (sockRule.mode === 'notice') {
-      addCheck('sock', 'ソックス丈', '🐥 自分で見てね〜', 'warn',
-        sockRule.message || 'ズボンに隠れて見えないよ〜！自分でチェックしてね♪');
+      addCheck('sock', 'ソックス丈', '自分で確認してね', 'warn',
+        sockRule.message || 'ズボンに隠れて見えないので、自分でチェックしてね');
     } else {
-      addCheck('sock', 'ソックス丈', 'これからチェックするよ〜🐥', null, sockRule.notes || '');
+      addCheck('sock', 'ソックス丈', 'これからチェック', null, sockRule.notes || '');
     }
 
     if (c.under_jacket) {
-      addCheck('under_jacket', 'ジャケットの下', 'これからチェックするよ〜🐥', null, c.under_jacket.notes || '');
+      addCheck('under_jacket', 'ジャケットの下', 'これからチェック', null, c.under_jacket.notes || '');
     }
   }
 
@@ -773,12 +791,12 @@
     const checks = getEffectiveChecks();
 
     if (!result.landmarks || result.landmarks.length === 0) {
-      drawError('ピピっ！？人がうつってないよ〜！全身うつしてみて〜');
-      if (checks.skirt_length === true) updateCheck('skirt', 'warn', 'お顔が見えないよ〜', '');
+      drawError('人がうつってないみたい。全身うつしてみよう');
+      if (checks.skirt_length === true) updateCheck('skirt', 'warn', '人物が見つかりません', '');
       const sr = checks.sock_length;
-      if (sr && sr.mode !== 'notice')   updateCheck('sock',  'warn', 'お顔が見えないよ〜', '');
-      if (checks.under_jacket)          updateCheck('under_jacket', 'warn', 'お顔が見えないよ〜', '');
-      showSummary('warn', '🐥 だれもうつってないみたい...');
+      if (sr && sr.mode !== 'notice')   updateCheck('sock',  'warn', '人物が見つかりません', '');
+      if (checks.under_jacket)          updateCheck('under_jacket', 'warn', '人物が見つかりません', '');
+      showSummary('warn', 'だれもうつってないみたい');
       return;
     }
 
@@ -799,10 +817,10 @@
 
     const hasNg   = results.some(r => r === 'ng');
     const hasWarn = results.some(r => r === 'warn');
-    if (results.length === 0) showSummary('warn', '🐥 確認するところがないよ〜');
-    else if (hasNg)   showSummary('ng',   '🥺 ちょっと直したいかも〜');
-    else if (hasWarn) showSummary('warn', '💭 もうちょっと整えてみよ〜');
-    else              showSummary('ok',   '🎀 ばっちり！今日もかわいいよ〜♪');
+    if (results.length === 0) showSummary('warn', '確認するところがないよ');
+    else if (hasNg)   showSummary('ng',   'ちょっと直したいかも');
+    else if (hasWarn) showSummary('warn', 'もうちょっと整えてみよう');
+    else              showSummary('ok',   'ばっちり！今日もかわいいよ');
   }
 
   function showSummary(level, text) {
@@ -907,7 +925,7 @@
     const lk = lm[25], rk = lm[26];
     const la = lm[27], ra = lm[28];
     if (!lh || !rh || !lk || !rk || (lk.visibility ?? 1) < 0.4 || (rk.visibility ?? 1) < 0.4) {
-      updateCheck('skirt', 'warn', '膝が見えないよ〜', '下半身もしっかりうつしてみて〜♪');
+      updateCheck('skirt', 'warn', '膝が見えないよ', '下半身もしっかりうつしてみよう');
       return 'warn';
     }
     const kneeY = (lk.y + rk.y) / 2;
@@ -925,7 +943,7 @@
 
     const baseline = sampleColumn(sampleCtx, px, startY, startY + 8, 6, w, h);
     if (!baseline) {
-      updateCheck('skirt', 'warn', 'うーん、わからないかも...', '色がうまく見えなかったよ〜！');
+      updateCheck('skirt', 'warn', '計測できないかも', '色をうまく読み取れなかったよ');
       return 'warn';
     }
     const THRESHOLD = 45;
@@ -944,7 +962,7 @@
     }
 
     if (hemY < 0) {
-      updateCheck('skirt', 'warn', '裾がよくわからないよ〜', '黄色のせんが膝だよ！自分で見てみてね♪');
+      updateCheck('skirt', 'warn', '裾が見つからないよ', '黄色の線が膝の高さ。自分でも見比べてみてね');
       return 'warn';
     }
 
@@ -958,16 +976,16 @@
     }
     const cm = ((hemY - kneeY) / kneeAnkle) * 40;
     if (cm < -3) {
-      updateCheck('skirt', 'ng', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'あらら〜ちょっと短いかも！直してみよ？🥺');
+      updateCheck('skirt', 'ng', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'ちょっと短いかも。下げてみよう');
       return 'ng';
     } else if (cm < -0.5) {
-      updateCheck('skirt', 'warn', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'もうちょっとだけ下げてみる？ピピっ');
+      updateCheck('skirt', 'warn', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'もうちょっとだけ下げてみよう');
       return 'warn';
     } else if (cm < 1.5) {
-      updateCheck('skirt', 'warn', '膝の高さ付近', 'ちょうど膝のとこだよ〜！');
+      updateCheck('skirt', 'warn', '膝の高さ付近', 'ちょうど膝のところ');
       return 'warn';
     } else {
-      updateCheck('skirt', 'ok', `膝より約 ${cm.toFixed(1)} cm 下`, 'ばっちりだよ〜！🎀');
+      updateCheck('skirt', 'ok', `膝より約 ${cm.toFixed(1)} cm 下`, 'ばっちりだよ〜');
       return 'ok';
     }
   }
@@ -982,11 +1000,11 @@
     if (lConf >= rConf && lConf > 0.4) { knee = lk; ankle = la; }
     else if (rConf > 0.4)               { knee = rk; ankle = ra; }
     else {
-      updateCheck('sock', 'warn', 'あれ〜？足が見えないよ！', '足元もうつしてみて〜♪');
+      updateCheck('sock', 'warn', '足が見つからないよ', '足元もうつしてみよう');
       return 'warn';
     }
     if (!ankle || ankle.y <= knee.y) {
-      updateCheck('sock', 'warn', 'うまく見えなかったよ〜', '');
+      updateCheck('sock', 'warn', '計測できないかも', '');
       return 'warn';
     }
 
@@ -995,13 +1013,13 @@
     const yLow  = Math.floor((ankle.y - 0.02) * h);
     const yHigh = Math.floor((knee.y + 0.02) * h);
     if (yLow <= yHigh) {
-      updateCheck('sock', 'warn', 'うまく見えなかったよ〜', '');
+      updateCheck('sock', 'warn', '計測できないかも', '');
       return 'warn';
     }
 
     const baseline = sampleColumn(sampleCtx, px, yLow - 10, yLow, 6, w, h);
     if (!baseline) {
-      updateCheck('sock', 'warn', 'うーん、わからないかも...', '');
+      updateCheck('sock', 'warn', '計測できないかも', '');
       return 'warn';
     }
 
@@ -1038,22 +1056,22 @@
     const pct = `膝〜足首間で${Math.round(covered * 100)}%カバー`;
 
     if (cls === 'ankle' && (ankleForbidden || !expected.includes('ankle'))) {
-      updateCheck('sock', 'ng', label, `くるぶし丈はこのモードでは🙅‍♀️だよ〜！ハイソックスにしてみよ？（${pct}）`);
+      updateCheck('sock', 'ng', label, `くるぶし丈はこのモードでは規定外。ハイソックスにしてみよう（${pct}）`);
       return 'ng';
     }
     if (expected.includes(cls)) {
-      updateCheck('sock', 'ok', label, `ばっちりだよ〜！🎀（${pct}）`);
+      updateCheck('sock', 'ok', label, `ばっちりだよ〜（${pct}）`);
       return 'ok';
     }
     if (expected.includes('high') && cls === 'short') {
-      updateCheck('sock', 'ng', label, `このモードはハイソックスじゃないとだめなんだ〜！（${pct}）`);
+      updateCheck('sock', 'ng', label, `このモードはハイソックスが必須だよ（${pct}）`);
       return 'ng';
     }
     if (expected.includes('short') && cls === 'high') {
-      updateCheck('sock', 'warn', label, `ちょっと長めかも〜？ピピっ（${pct}）`);
+      updateCheck('sock', 'warn', label, `ちょっと長めかも（${pct}）`);
       return 'warn';
     }
-    updateCheck('sock', 'warn', label, `あれ？ちょっと違う丈かも〜（${pct}）`);
+    updateCheck('sock', 'warn', label, `ちょっと違う丈かも（${pct}）`);
     return 'warn';
   }
 
@@ -1063,8 +1081,8 @@
     const lh = lm[23], rh = lm[24];
     if (!ls || !rs || !lh || !rh ||
         (ls.visibility ?? 1) < 0.4 || (rs.visibility ?? 1) < 0.4) {
-      updateCheck('under_jacket', 'warn', '上半身が見えないよ〜！',
-        '肩から胸までうつしてみて〜♪');
+      updateCheck('under_jacket', 'warn', '上半身が見えないよ',
+        '肩から胸までうつしてみよう');
       return 'warn';
     }
 
@@ -1074,7 +1092,7 @@
     const chestX    = (ls.x + rs.x) / 2;
     const torsoH    = hipY - shoulderY;
     if (torsoH <= 0.05) {
-      updateCheck('under_jacket', 'warn', 'うまく見えなかったよ〜', '');
+      updateCheck('under_jacket', 'warn', '計測できないかも', '');
       return 'warn';
     }
 
@@ -1090,7 +1108,7 @@
     const vSample = sampleColumn(sampleCtx, vCx, vCy - halfY, vCy + halfY, halfX, w, h);
     const jSample = sampleColumn(sampleCtx, jCx, vCy - halfY, vCy + halfY, halfX, w, h);
     if (!vSample || !jSample) {
-      updateCheck('under_jacket', 'warn', 'うーん、わからないかも...', '');
+      updateCheck('under_jacket', 'warn', '計測できないかも', '');
       return 'warn';
     }
 
@@ -1103,36 +1121,36 @@
 
     if (rule.expected_visible === 'shirt') {
       if (delta > 50) {
-        updateCheck('under_jacket', 'ok', 'Yシャツのみ♪',
-          `ジャケットの下にYシャツがちゃんと見えるよ〜！正装ばっちり🎀（明度差 ${Math.round(delta)}）`);
+        updateCheck('under_jacket', 'ok', 'Yシャツのみ',
+          `ジャケットの下にYシャツが見えるよ。正装ばっちり（明度差 ${Math.round(delta)}）`);
         return 'ok';
       } else if (delta > 15) {
-        updateCheck('under_jacket', 'warn', 'うーん、よく見えないかも...',
-          `色がちゃんと見えないんだ〜。明るいとこでもう一回撮ってみて？✨（差 ${Math.round(delta)}）`);
+        updateCheck('under_jacket', 'warn', '判定がむずかしいかも',
+          `明度差が小さくて確実に判定できないよ。明るいところで撮りなおしてみよう（差 ${Math.round(delta)}）`);
         return 'warn';
       } else {
-        updateCheck('under_jacket', 'ng', 'あれ？ベスト着てるかも？',
-          `正装はYシャツだけだよ〜！ベストかセーターを脱いでみよ？🥺（差 ${Math.round(delta)}）`);
+        updateCheck('under_jacket', 'ng', 'ベスト/セーターありそう',
+          `正装はYシャツだけだよ。ベストかセーターを脱いでみよう（差 ${Math.round(delta)}）`);
         return 'ng';
       }
     }
 
     if (rule.expected_visible === 'navy_layer') {
       if (Math.abs(delta) < 20) {
-        updateCheck('under_jacket', 'ok', '紺のベスト見えたよ〜🎀',
-          `紺の層がちゃんとうつってるよ〜♪（明度差 ${Math.round(delta)}）`);
+        updateCheck('under_jacket', 'ok', '紺の層を確認',
+          `紺の層がジャケットの下に見えるよ（明度差 ${Math.round(delta)}）`);
         return 'ok';
       } else if (delta > 50) {
-        updateCheck('under_jacket', 'ng', 'ベスト着てないかも？',
-          `Yシャツだけになってない？ベスト着てるか確認してみて〜！（差 ${Math.round(delta)}）`);
+        updateCheck('under_jacket', 'ng', 'ベストが見えないかも',
+          `Yシャツだけになってない？ベスト着てるか確認してみよう（差 ${Math.round(delta)}）`);
         return 'ng';
       } else {
-        updateCheck('under_jacket', 'warn', 'うーん、よく見えないかも...', '');
+        updateCheck('under_jacket', 'warn', '判定がむずかしいかも', '');
         return 'warn';
       }
     }
 
-    updateCheck('under_jacket', 'warn', 'うーん、まだわからないんだ〜', '');
+    updateCheck('under_jacket', 'warn', '判定対象外', '');
     return 'warn';
   }
 
