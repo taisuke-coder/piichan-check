@@ -1,0 +1,115 @@
+{
+  "modes": [
+    {
+      "id": "formal_male",
+      "label": "正装(男子)",
+      "season_label": "冬・式典",
+      "icon": "🎩",
+      "needs_shirt_type": false,
+      "needs_bottoms_type": false,
+      "checks": {
+        "skirt_length": false,
+        "sock_length": {
+          "mode": "notice",
+          "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックスを履いてるか、自分でチェックしてね〜♪"
+        },
+        "under_jacket": {
+          "expected_visible": "shirt",
+          "notes": "正装はジャケットの下にYシャツだけだよ〜！ベストやセーターはお休みね♪"
+        }
+      }
+    },
+    {
+      "id": "formal_female",
+      "label": "正装(女子)",
+      "season_label": "冬・式典",
+      "icon": "🎀",
+      "needs_shirt_type": false,
+      "needs_bottoms_type": false,
+      "checks": {
+        "skirt_length": true,
+        "sock_length": { "expected": "high", "notes": "正装は制定の紺ハイソックスだよ〜♪" }
+      }
+    },
+    {
+      "id": "winter_male",
+      "label": "通常冬服(男子)",
+      "season_label": "冬・通常",
+      "icon": "🧥",
+      "needs_shirt_type": false,
+      "needs_bottoms_type": false,
+      "checks": {
+        "skirt_length": false,
+        "sock_length": {
+          "mode": "notice",
+          "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+        }
+      }
+    },
+    {
+      "id": "winter_female",
+      "label": "通常冬服(女子)",
+      "season_label": "冬・通常",
+      "icon": "🧣",
+      "needs_shirt_type": false,
+      "needs_bottoms_type": true,
+      "checks_by_bottoms": {
+        "skirt": {
+          "skirt_length": true,
+          "sock_length": {
+            "expected": ["high", "short"],
+            "ankle_forbidden": true,
+            "notes": "ハイソックス か 男子用短め(同型同色までOK)だよ〜！くるぶし丈はNGだから気をつけてね♪"
+          }
+        },
+        "pants": {
+          "skirt_length": false,
+          "sock_length": {
+            "mode": "notice",
+            "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+          }
+        }
+      }
+    },
+    {
+      "id": "summer_male",
+      "label": "夏服(男子)",
+      "season_label": "夏",
+      "icon": "☀️",
+      "needs_shirt_type": true,
+      "needs_bottoms_type": false,
+      "checks": {
+        "skirt_length": false,
+        "sock_length": {
+          "mode": "notice",
+          "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+        }
+      }
+    },
+    {
+      "id": "summer_female",
+      "label": "夏服(女子)",
+      "season_label": "夏",
+      "icon": "🌻",
+      "needs_shirt_type": true,
+      "needs_bottoms_type": true,
+      "checks_by_bottoms": {
+        "skirt": {
+          "skirt_length": true,
+          "sock_length": {
+            "expected": ["high", "short"],
+            "ankle_forbidden": true,
+            "notes": "ハイソックス か 男子用短め(同型同色までOK)だよ〜！くるぶし丈はNGだから気をつけてね♪"
+          }
+        },
+        "pants": {
+          "skirt_length": false,
+          "sock_length": {
+            "mode": "notice",
+            "message": "ズボンに隠れてピーちゃんからは見えないよ〜！制定の紺ソックス か同型同色を履いてるか、自分でチェックしてね〜♪"
+          }
+        }
+      }
+    }
+  ]
+}
