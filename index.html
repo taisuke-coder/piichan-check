@@ -2,187 +2,248 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>身だしなみセルフチェック</title>
 <link rel="preconnect" href="https://rsms.me/">
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  /* ===== Clay-inspired design tokens =====
-     canvas         #fffaf0   cream-tinted white (page floor)
-     surface-soft   #faf5e8   CTA bands, modal hosts
-     surface-card   #f5f0e0   cream feature cards
-     surface-strong #ebe6d6   emphasized bands
-     hairline       #e5e5e5   1px borders
-     ink            #0a0a0a   primary text + CTA fill
-     body           #3a3a3a   running text
-     muted          #6a6a6a   sub-headings
-     brand-pink     #ff4d8b
-     brand-teal     #1a3a3a
-     brand-lavender #b8a4ed
-     brand-peach    #ffb084
-     brand-ochre    #e8b94a
-     brand-mint     #a4d4c5
-     brand-coral    #ff6b5a
-  */
+  /* =========================================================================
+     Design tokens — Figma-style monochrome + pastel color blocks
+     ========================================================================= */
+  :root {
+    /* Surface */
+    --canvas: #ffffff;
+    --ink: #000000;
+    --inverse-ink: #ffffff;
+    --hairline: #e5e5e5;
+    --hairline-soft: #ededed;
+    --surface-soft: #f7f7f5;
+
+    /* Color blocks */
+    --block-lime:   #d4fb7b;
+    --block-lilac:  #d5c8ff;
+    --block-cream:  #ffeec9;
+    --block-mint:   #b8f0d2;
+    --block-pink:   #ffc4dc;
+    --block-coral:  #ffb3a3;
+    --block-navy:   #1a1e47;
+
+    /* Visualization overlays (photo) */
+    --overlay-knee:  #000000;
+    --overlay-hem:   #22c55e;
+    --overlay-sock:  #e11d48;
+    --overlay-vbox:  #7c3aed;
+
+    /* Typography */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  }
+  @supports (font-variation-settings: normal) {
+    :root { --font-sans: 'Inter var', 'Inter', -apple-system, system-ui, sans-serif; }
+  }
+
+  /* =========================================================================
+     Base
+     ========================================================================= */
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
-    background: #fffaf0;
-    color: #3a3a3a;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
-    font-feature-settings: "ss01" 1, "cv11" 1;
-    -webkit-tap-highlight-color: transparent;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-feature-settings: 'kern', 'ss01';
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
-    display: flex; flex-direction: column; align-items: center;
+    display: flex; flex-direction: column;
     min-height: 100vh;
   }
 
-  /* ===== Top nav ===== */
+  /* =========================================================================
+     Top nav
+     ========================================================================= */
   header {
     width: 100%;
-    background: #fffaf0;
-    padding: 22px 20px 20px;
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--hairline);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
   }
-  h1 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 500;
-    color: #0a0a0a;
-    letter-spacing: -0.5px;
+  header .brand {
+    font-size: 18px;
+    font-weight: 540;
+    font-variation-settings: 'wght' 540;
+    letter-spacing: -0.3px;
   }
-  .phase {
-    font-size: 13px;
-    color: #6a6a6a;
-    margin-top: 4px;
-    font-weight: 500;
+  header .tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    opacity: 0.55;
   }
 
-  .screen { width: 100%; max-width: 720px; padding: 36px 20px 24px; }
+  /* =========================================================================
+     Screen container
+     ========================================================================= */
+  .screen {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 96px 32px;
+  }
   .screen.hidden { display: none; }
 
-  /* ===== Section label (eyebrow) ===== */
+  /* =========================================================================
+     Eyebrow (mono uppercase label)
+     ========================================================================= */
   .eyebrow {
-    display: inline-block;
+    font-family: var(--font-mono);
     font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
+    font-weight: 400;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
-    color: #6a6a6a;
-    background: #f5f0e0;
-    padding: 6px 12px;
-    border-radius: 9999px;
-    margin-bottom: 16px;
+    color: var(--ink);
+    margin-bottom: 24px;
+    display: inline-block;
   }
 
-  /* ===== Mode selection ===== */
-  .mode-screen { text-align: center; }
+  /* =========================================================================
+     Mode selection
+     ========================================================================= */
+  .mode-screen { text-align: left; }
   .mode-screen h2 {
-    font-size: 40px;
-    font-weight: 500;
-    margin: 0 0 36px;
-    text-align: center;
-    color: #0a0a0a;
+    font-size: 72px;
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
     letter-spacing: -1.5px;
-    line-height: 1.05;
+    line-height: 1.0;
+    margin: 0 0 64px;
+    color: var(--ink);
+    max-width: 900px;
   }
+
   .mode-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    text-align: left;
   }
   .mode-btn {
     border: none;
-    padding: 32px 24px 28px;
+    padding: 40px 32px 32px;
     border-radius: 24px;
     text-align: left;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.18s ease;
     font-family: inherit;
-    background: #f5f0e0;
-    color: #0a0a0a;
+    background: var(--surface-soft);
+    color: var(--ink);
     position: relative;
-    overflow: hidden;
-    min-height: 156px;
+    min-height: 240px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
-  .mode-btn:hover { transform: translateY(-2px); }
-  .mode-btn:active { transform: scale(0.98); }
-  .mode-btn .title {
-    font-size: 22px;
-    font-weight: 500;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
+  .mode-btn:hover { transform: translateY(-3px); }
+  .mode-btn:active { transform: scale(0.99); }
+  .mode-btn .mode-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
     color: inherit;
+    opacity: 0.7;
   }
-  .mode-btn .sub {
-    font-size: 13px;
-    margin-top: 16px;
-    font-weight: 500;
-    opacity: 0.65;
+  .mode-btn .title {
+    font-size: 32px;
+    font-weight: 540;
+    font-variation-settings: 'wght' 540;
+    letter-spacing: -0.6px;
+    line-height: 1.1;
     color: inherit;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    margin-top: 16px;
   }
   .mode-btn .arrow {
-    font-size: 18px;
-    font-weight: 300;
+    font-size: 24px;
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    color: inherit;
+    align-self: flex-end;
     transition: transform 0.2s ease;
   }
-  .mode-btn:hover .arrow { transform: translateX(4px); }
-  /* 6-color brand palette cycle */
-  .mode-btn[data-color="teal"]     { background: #1a3a3a; color: #ffffff; }
-  .mode-btn[data-color="pink"]     { background: #ff4d8b; color: #ffffff; }
-  .mode-btn[data-color="lavender"] { background: #b8a4ed; color: #0a0a0a; }
-  .mode-btn[data-color="peach"]    { background: #ffb084; color: #0a0a0a; }
-  .mode-btn[data-color="ochre"]    { background: #e8b94a; color: #0a0a0a; }
-  .mode-btn[data-color="cream"]    { background: #f5f0e0; color: #0a0a0a; }
+  .mode-btn:hover .arrow { transform: translateX(6px); }
 
-  .privacy-note {
-    margin-top: 24px;
-    font-size: 13px;
-    color: #6a6a6a;
-    line-height: 1.7;
-    text-align: center;
-    font-weight: 400;
+  /* Block color variants */
+  .mode-btn[data-color="navy"]  { background: var(--block-navy);  color: var(--inverse-ink); }
+  .mode-btn[data-color="lilac"] { background: var(--block-lilac); }
+  .mode-btn[data-color="mint"]  { background: var(--block-mint);  }
+  .mode-btn[data-color="cream"] { background: var(--block-cream); }
+  .mode-btn[data-color="coral"] { background: var(--block-coral); }
+  .mode-btn[data-color="pink"]  { background: var(--block-pink);  }
+  .mode-btn[data-color="lime"]  { background: var(--block-lime);  }
+
+  /* Privacy block (lime) */
+  .privacy-block {
+    background: var(--block-lime);
+    border-radius: 24px;
+    padding: 48px 40px;
+    margin-top: 96px;
+    max-width: 100%;
+  }
+  .privacy-block .eyebrow { margin-bottom: 16px; }
+  .privacy-block p {
+    font-size: 22px;
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    line-height: 1.4;
+    letter-spacing: -0.2px;
+    color: var(--ink);
+    margin: 0;
+    max-width: 720px;
   }
 
-  /* ===== Sub-question modal ===== */
+  /* =========================================================================
+     Sub modal
+     ========================================================================= */
   .sub-overlay {
     position: fixed; inset: 0;
-    background: rgba(10, 26, 26, 0.42);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex; align-items: center; justify-content: center;
-    z-index: 100; padding: 16px;
+    z-index: 100; padding: 24px;
   }
   .sub-overlay.hidden { display: none; }
   .sub-card {
-    background: #fffaf0;
+    background: var(--canvas);
     border-radius: 24px;
-    padding: 32px 24px 20px;
-    max-width: 420px;
+    padding: 48px 32px 32px;
+    max-width: 480px;
     width: 100%;
-    border: 1px solid #e5e5e5;
   }
+  .sub-card .eyebrow { margin-bottom: 12px; }
   .sub-card h3 {
-    margin: 0 0 24px;
-    font-size: 24px;
-    text-align: center;
-    color: #0a0a0a;
-    font-weight: 500;
-    letter-spacing: -0.5px;
+    margin: 0 0 32px;
+    font-size: 36px;
+    color: var(--ink);
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    letter-spacing: -0.7px;
+    line-height: 1.05;
   }
   .sub-card .options {
     display: grid;
@@ -190,300 +251,355 @@
     gap: 12px;
   }
   .sub-btn {
-    background: #f5f0e0;
+    background: var(--ink);
     border: none;
-    color: #0a0a0a;
-    padding: 20px 12px;
-    border-radius: 16px;
+    color: var(--inverse-ink);
+    padding: 16px 24px;
+    border-radius: 9999px;
     cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 480;
+    font-variation-settings: 'wght' 480;
     font-family: inherit;
-    letter-spacing: -0.2px;
-    transition: background 0.15s;
+    letter-spacing: -0.15px;
+    line-height: 1.2;
+    transition: opacity 0.15s, transform 0.12s;
   }
-  .sub-btn:active { background: #ebe6d6; }
+  .sub-btn:hover { opacity: 0.88; }
+  .sub-btn:active { transform: scale(0.98); }
   .sub-cancel {
     margin-top: 16px;
     width: 100%;
     background: transparent;
     border: none;
-    color: #6a6a6a;
-    padding: 10px;
+    color: var(--ink);
+    padding: 12px;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 480;
+    font-variation-settings: 'wght' 480;
     font-family: inherit;
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 
-  /* ===== Photo screen ===== */
+  /* =========================================================================
+     Photo screen
+     ========================================================================= */
   .mode-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #fffaf0;
-    padding: 16px 20px;
+    border: 1px solid var(--hairline);
+    padding: 20px 24px;
     border-radius: 16px;
-    margin-bottom: 16px;
-    gap: 12px;
-    border: 1px solid #e5e5e5;
+    margin-bottom: 24px;
+    background: var(--canvas);
+    gap: 16px;
   }
   .mode-bar .name {
-    font-size: 18px;
-    font-weight: 600;
-    color: #0a0a0a;
-    letter-spacing: -0.3px;
+    font-size: 22px;
+    font-weight: 540;
+    font-variation-settings: 'wght' 540;
+    color: var(--ink);
+    letter-spacing: -0.4px;
+    line-height: 1.2;
   }
   .mode-bar .sub {
-    font-size: 13px;
-    color: #6a6a6a;
-    margin-top: 2px;
-    font-weight: 500;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.65;
   }
   .change-btn {
-    background: #f5f0e0;
-    border: none;
-    color: #0a0a0a;
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
+    background: var(--canvas);
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    padding: 8px 20px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 480;
+    font-variation-settings: 'wght' 480;
     cursor: pointer;
     font-family: inherit;
+    letter-spacing: -0.1px;
     flex-shrink: 0;
     transition: background 0.15s;
   }
-  .change-btn:active { background: #ebe6d6; }
+  .change-btn:hover { background: var(--surface-soft); }
+  .change-btn:active { transform: scale(0.98); }
 
   .canvas-wrap {
     position: relative;
     width: 100%;
-    background: #fffaf0;
-    border-radius: 16px;
+    background: var(--canvas);
+    border-radius: 24px;
     overflow: hidden;
-    min-height: 360px;
+    min-height: 420px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e5e5e5;
+    border: 1px solid var(--hairline);
   }
   #resultCanvas {
     display: block;
     width: 100%;
     height: auto;
-    max-height: 65vh;
+    max-height: 70vh;
     object-fit: contain;
   }
   #resultCanvas.hidden { display: none; }
+
   .empty-state {
-    color: #6a6a6a;
-    font-size: 15px;
-    line-height: 1.7;
+    color: var(--ink);
+    line-height: 1.5;
     text-align: center;
-    padding: 60px 24px;
-    font-weight: 400;
+    padding: 96px 32px;
   }
   .empty-state .icon {
-    width: 44px;
-    height: 44px;
-    margin: 0 auto 20px;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 28px;
     display: block;
-    color: #c4b8a8;
+    color: var(--ink);
+    opacity: 0.35;
   }
   .empty-state .message {
-    font-size: 16px;
-    color: #0a0a0a;
-    margin-bottom: 6px;
-    font-weight: 500;
-    letter-spacing: -0.2px;
+    font-size: 28px;
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    color: var(--ink);
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
   }
   .empty-state .hint {
-    color: #9a9a9a;
+    color: var(--ink);
     display: block;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    opacity: 0.5;
+    letter-spacing: -0.1px;
   }
+
   .loading {
     position: absolute; inset: 0;
-    background: rgba(255, 250, 240, 0.92);
+    background: rgba(255,255,255,0.94);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0a0a0a;
-    font-size: 15px;
-    font-weight: 500;
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 480;
+    font-variation-settings: 'wght' 480;
+    letter-spacing: -0.2px;
   }
   .loading.hidden { display: none; }
 
-  /* ===== Action buttons ===== */
+  /* =========================================================================
+     Actions — pill primary + secondary
+     ========================================================================= */
   .actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin: 16px 0;
+    margin: 24px 0;
   }
   .actions button {
-    background: #0a0a0a;
-    color: #ffffff;
+    background: var(--ink);
+    color: var(--inverse-ink);
     border: none;
-    padding: 16px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 16px 24px;
+    border-radius: 9999px;
+    font-size: 17px;
+    font-weight: 480;
+    font-variation-settings: 'wght' 480;
     cursor: pointer;
     font-family: inherit;
-    letter-spacing: -0.1px;
-    transition: background 0.15s, transform 0.12s;
+    letter-spacing: -0.15px;
+    line-height: 1.2;
+    transition: opacity 0.15s, transform 0.12s;
   }
-  .actions button:active {
-    background: #1a1a1a;
-    transform: scale(0.98);
-  }
+  .actions button:hover { opacity: 0.9; }
+  .actions button:active { transform: scale(0.98); }
   .actions button.secondary {
-    background: #fffaf0;
-    color: #0a0a0a;
-    border: 1px solid #e5e5e5;
+    background: var(--canvas);
+    color: var(--ink);
+    border: 1px solid var(--ink);
   }
-  .actions button.secondary:active { background: #f5f0e0; }
+  .actions button.secondary:hover { background: var(--surface-soft); }
   .actions button:disabled {
-    background: #ebe6d6;
-    color: #9a9a9a;
+    opacity: 0.4;
     cursor: not-allowed;
-    transform: none;
   }
 
-  /* ===== Summary (feature-card style) ===== */
+  /* =========================================================================
+     Summary — color block
+     ========================================================================= */
   .summary {
-    margin-top: 16px;
-    padding: 28px 24px;
+    margin-top: 24px;
+    padding: 48px 40px;
     border-radius: 24px;
-    text-align: center;
-    font-size: 22px;
-    font-weight: 500;
-    letter-spacing: -0.5px;
-    background: #f5f0e0;
-    color: #0a0a0a;
-    line-height: 1.35;
+    background: var(--surface-soft);
+    color: var(--ink);
+    border: none;
   }
-  .summary.ok   { background: #a4d4c5; color: #0a0a0a; }
-  .summary.warn { background: #ffb084; color: #0a0a0a; }
-  .summary.ng   { background: #ff6b5a; color: #ffffff; }
   .summary.hidden { display: none; }
+  .summary.ok   { background: var(--block-lime); }
+  .summary.warn { background: var(--block-lilac); }
+  .summary.ng   { background: var(--block-coral); }
+  .summary .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+  .summary .message {
+    font-size: 40px;
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    letter-spacing: -0.8px;
+    line-height: 1.05;
+    margin: 0;
+  }
 
-  /* ===== Check list ===== */
+  /* =========================================================================
+     Check list
+     ========================================================================= */
   .check-list {
-    display: flex; flex-direction: column;
-    gap: 10px;
-    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
   }
   .check {
-    background: #fffaf0;
-    padding: 18px 20px;
+    background: var(--canvas);
+    padding: 24px;
     border-radius: 16px;
-    border: 1px solid #e5e5e5;
-    border-left: 4px solid #d4d4d4;
+    border: 1px solid var(--hairline);
   }
   .check .head {
+    font-family: var(--font-mono);
     font-size: 11px;
-    color: #6a6a6a;
-    font-weight: 600;
-    letter-spacing: 1.4px;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
+    opacity: 0.55;
   }
   .check .value {
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: -0.3px;
-    margin: 8px 0 4px;
-    color: #0a0a0a;
-    line-height: 1.35;
+    font-size: 22px;
+    font-weight: 480;
+    font-variation-settings: 'wght' 480;
+    letter-spacing: -0.4px;
+    margin: 10px 0 6px;
+    color: var(--ink);
+    line-height: 1.3;
   }
   .check .detail {
-    font-size: 13px;
-    color: #6a6a6a;
-    line-height: 1.6;
-    font-weight: 400;
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.55;
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    opacity: 0.65;
+    letter-spacing: -0.1px;
   }
-  .check.ok {
-    background: #f0f7f1;
-    border-color: #d0e5d4;
-    border-left-color: #22c55e;
-  }
-  .check.ok .value { color: #15803d; }
-  .check.warn {
-    background: #fff8e8;
-    border-color: #f0e0a8;
-    border-left-color: #e8b94a;
-  }
-  .check.warn .value { color: #a05a15; }
-  .check.ng {
-    background: #fff1ee;
-    border-color: #f5d0c8;
-    border-left-color: #ff6b5a;
-  }
-  .check.ng .value { color: #c43820; }
-  .check.disabled {
-    opacity: 0.5;
-    border-left-color: #d4d4d4;
-  }
+  .check.ok   { background: #f5fbe8; border-color: #d4fb7b; }
+  .check.warn { background: #f8f4ff; border-color: #d5c8ff; }
+  .check.ng   { background: #fff3f0; border-color: #ffb3a3; }
+  .check.disabled { opacity: 0.45; }
 
-  /* ===== Legend ===== */
+  /* =========================================================================
+     Legend
+     ========================================================================= */
   .legend {
-    margin-top: 16px;
-    font-size: 13px;
-    color: #6a6a6a;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--ink);
     line-height: 1.7;
-    background: #fffaf0;
-    padding: 14px 16px;
-    border-radius: 12px;
-    border: 1px solid #e5e5e5;
-    font-weight: 400;
+    padding: 20px 24px;
+    border-radius: 16px;
+    border: 1px solid var(--hairline);
+    font-weight: 340;
+    font-variation-settings: 'wght' 340;
+    background: var(--canvas);
   }
-  .legend .row { display: flex; align-items: center; gap: 8px; }
+  .legend .row { display: flex; align-items: center; gap: 10px; }
   .swatch {
     display: inline-block;
-    width: 14px; height: 4px;
+    width: 16px; height: 4px;
     border-radius: 2px;
     flex-shrink: 0;
   }
   .legend .hint {
-    margin-top: 8px;
-    color: #9a9a9a;
-    font-size: 12px;
+    margin-top: 10px;
+    opacity: 0.5;
+    font-size: 13px;
+    letter-spacing: -0.1px;
   }
 
-  /* ===== Mobile ===== */
-  @media (max-width: 640px) {
-    .mode-screen h2 { font-size: 32px; letter-spacing: -1px; }
-    .mode-btn { padding: 28px 20px 24px; min-height: 140px; }
-    .mode-btn .title { font-size: 20px; }
-    .sub-card h3 { font-size: 20px; }
-    .summary { font-size: 20px; padding: 24px 20px; }
+  /* =========================================================================
+     Mobile
+     ========================================================================= */
+  @media (max-width: 768px) {
+    header { padding: 14px 20px; }
+    header .brand { font-size: 16px; }
+    header .tag { display: none; }
+    .screen { padding: 48px 20px; }
+    .mode-screen h2 { font-size: 44px; letter-spacing: -1px; margin-bottom: 40px; }
+    .mode-btn { min-height: 180px; padding: 28px 24px 24px; }
+    .mode-btn .title { font-size: 24px; letter-spacing: -0.4px; }
+    .mode-btn .arrow { font-size: 20px; }
+    .privacy-block { padding: 32px 24px; margin-top: 56px; }
+    .privacy-block p { font-size: 18px; }
+    .sub-card { padding: 36px 24px 24px; }
+    .sub-card h3 { font-size: 28px; letter-spacing: -0.5px; }
+    .summary { padding: 32px 24px; }
+    .summary .message { font-size: 28px; letter-spacing: -0.5px; }
+    .empty-state { padding: 64px 24px; }
+    .empty-state .message { font-size: 22px; }
+    .mode-bar { padding: 16px 20px; }
+    .mode-bar .name { font-size: 18px; }
+  }
+  @media (max-width: 480px) {
+    .mode-grid { grid-template-columns: 1fr; }
+    .sub-card .options { grid-template-columns: 1fr; }
+    .actions { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>身だしなみセルフチェック</h1>
-  <div class="phase">ピーちゃんと一緒にかくにん</div>
+  <div class="brand">身だしなみセルフチェック</div>
+  <div class="tag">Uniform Checker</div>
 </header>
 
 <!-- ===== Mode selection ===== -->
 <section id="modeScreen" class="screen mode-screen">
-  <span class="eyebrow">Step 1 — 制服モードを選ぼう</span>
+  <div class="eyebrow">Step 01 — Choose Mode</div>
   <h2>今日はどの制服？</h2>
   <div id="modeGrid" class="mode-grid"></div>
-  <div class="privacy-note">
-    写真はすべてこの端末の中だけで処理されます。<br>
-    外部に送信されることはありません。
+  <div class="privacy-block">
+    <div class="eyebrow">Privacy</div>
+    <p>写真はすべてこの端末の中だけで処理されます。外部に送信されることはありません。</p>
   </div>
 </section>
 
-<!-- ===== Generic sub-question modal ===== -->
+<!-- ===== Sub-question modal ===== -->
 <div id="subOverlay" class="sub-overlay hidden">
   <div class="sub-card">
+    <div class="eyebrow">Quick Question</div>
     <h3 id="subQuestion">—</h3>
     <div class="options" id="subOptions"></div>
     <button class="sub-cancel" id="subCancel">キャンセル</button>
@@ -497,7 +613,7 @@
       <div class="name" id="modeName">—</div>
       <div class="sub" id="modeSub">—</div>
     </div>
-    <button class="change-btn" id="changeMode">モード変更</button>
+    <button class="change-btn" id="changeMode">変更</button>
   </div>
 
   <div class="canvas-wrap">
@@ -507,10 +623,10 @@
         <circle cx="12" cy="13" r="3.2"/>
       </svg>
       <div class="message">写真を撮るかアルバムから選ぼう</div>
-      <span class="hint">全身が映った写真をピーちゃんがチェックします</span>
+      <span class="hint">全身が映った写真を解析します</span>
     </div>
     <canvas id="resultCanvas" class="hidden"></canvas>
-    <div class="loading hidden" id="loading">ピーちゃんがチェック中…</div>
+    <div class="loading hidden" id="loading">解析中…</div>
   </div>
 
   <div class="actions">
@@ -526,12 +642,11 @@
   <div class="check-list" id="checkList"></div>
 
   <div class="legend">
-    <div class="row"><span class="swatch" style="background:#e8b94a;"></span>膝の高さ（基準線）</div>
-    <div class="row"><span class="swatch" style="background:#a4d4c5;"></span>スカートの裾（推定）</div>
-    <div class="row"><span class="swatch" style="background:#ff4d8b;"></span>ソックスの上端（推定）</div>
+    <div class="row"><span class="swatch" style="background:#000000;"></span>膝の高さ（基準線）</div>
+    <div class="row"><span class="swatch" style="background:#22c55e;"></span>スカートの裾（推定）</div>
+    <div class="row"><span class="swatch" style="background:#e11d48;"></span>ソックスの上端（推定）</div>
     <div class="hint">
-      ・全身（頭〜足元）が入った写真を使ってください<br>
-      ・正面向き／無地の背景／自然光だと精度が上がるよ
+      全身（頭〜足元）が入った正面写真を、無地の背景・自然光で撮ると精度が上がります。
     </div>
   </div>
 </section>
@@ -571,8 +686,7 @@
   const sampleCanvas = document.createElement('canvas');
   const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
 
-  // Brand color cycle for mode cards
-  const BRAND_COLORS = ['teal', 'pink', 'lavender', 'peach', 'ochre', 'cream'];
+  const BRAND_COLORS = ['navy', 'lilac', 'cream', 'mint', 'coral', 'pink'];
 
   async function init() {
     try {
@@ -580,7 +694,7 @@
       rules = await res.json();
     } catch (e) {
       modeGrid.innerHTML = '<div style="grid-column: 1/-1; color: #c43820; padding: 24px; text-align: center; background: #fff1ee; border-radius: 16px;">' +
-        'rules.json の読み込みに失敗しました。<br>localhost 経由で開いているか確認してください。</div>';
+        'rules.json の読み込みに失敗しました。localhost 経由で開いているか確認してください。</div>';
       return;
     }
     buildModeGrid();
@@ -593,11 +707,11 @@
       btn.className = 'mode-btn';
       btn.dataset.color = BRAND_COLORS[i % BRAND_COLORS.length];
       btn.innerHTML = `
-        <div class="title">${mode.label}</div>
-        <div class="sub">
-          <span>${mode.season_label}</span>
-          <span class="arrow">→</span>
+        <div>
+          <div class="mode-eyebrow">${mode.season_label}</div>
+          <div class="title">${mode.label}</div>
         </div>
+        <div class="arrow">→</div>
       `;
       btn.addEventListener('click', () => handleModeClick(mode));
       modeGrid.appendChild(btn);
@@ -676,10 +790,10 @@
     modeName.textContent = selectedMode.label;
     let sub = selectedMode.season_label;
     if (selectedBottomsType) {
-      sub += ' ／ ' + (selectedBottomsType === 'skirt' ? 'スカート' : 'ズボン');
+      sub += ' / ' + (selectedBottomsType === 'skirt' ? 'スカート' : 'ズボン');
     }
     if (selectedShirtType) {
-      sub += ' ／ ' + (selectedShirtType === 'shirt' ? 'Yシャツ' : 'ポロシャツ');
+      sub += ' / ' + (selectedShirtType === 'shirt' ? 'Yシャツ' : 'ポロシャツ');
     }
     modeSub.textContent = sub;
     canvas.classList.add('hidden');
@@ -700,7 +814,7 @@
     const c = getEffectiveChecks();
 
     addCheck('skirt', 'スカート丈',
-      c.skirt_length === true ? 'これからチェック' : '対象外',
+      c.skirt_length === true ? '計測待ち' : '対象外',
       c.skirt_length === true ? null : 'disabled', '');
 
     const sockRule = c.sock_length;
@@ -710,11 +824,11 @@
       addCheck('sock', 'ソックス丈', '自分で確認してね', 'warn',
         sockRule.message || 'ズボンに隠れて見えないので、自分でチェックしてね');
     } else {
-      addCheck('sock', 'ソックス丈', 'これからチェック', null, sockRule.notes || '');
+      addCheck('sock', 'ソックス丈', '計測待ち', null, sockRule.notes || '');
     }
 
     if (c.under_jacket) {
-      addCheck('under_jacket', 'ジャケットの下', 'これからチェック', null, c.under_jacket.notes || '');
+      addCheck('under_jacket', 'ジャケットの下', '計測待ち', null, c.under_jacket.notes || '');
     }
   }
 
@@ -791,12 +905,12 @@
     const checks = getEffectiveChecks();
 
     if (!result.landmarks || result.landmarks.length === 0) {
-      drawError('人がうつってないみたい。全身うつしてみよう');
+      drawError('人がうつってないみたい');
       if (checks.skirt_length === true) updateCheck('skirt', 'warn', '人物が見つかりません', '');
       const sr = checks.sock_length;
       if (sr && sr.mode !== 'notice')   updateCheck('sock',  'warn', '人物が見つかりません', '');
       if (checks.under_jacket)          updateCheck('under_jacket', 'warn', '人物が見つかりません', '');
-      showSummary('warn', 'だれもうつってないみたい');
+      showSummary('warn', 'だれもうつっていません');
       return;
     }
 
@@ -817,23 +931,29 @@
 
     const hasNg   = results.some(r => r === 'ng');
     const hasWarn = results.some(r => r === 'warn');
-    if (results.length === 0) showSummary('warn', '確認するところがないよ');
-    else if (hasNg)   showSummary('ng',   'ちょっと直したいかも');
+    if (results.length === 0) showSummary('warn', '確認するところがありません');
+    else if (hasNg)   showSummary('ng',   'ちょっと直したいところがあります');
     else if (hasWarn) showSummary('warn', 'もうちょっと整えてみよう');
-    else              showSummary('ok',   'ばっちり！今日もかわいいよ');
+    else              showSummary('ok',   'ばっちり。今日もきれい。');
   }
 
   function showSummary(level, text) {
     summary.className = 'summary ' + level;
-    summary.textContent = text;
+    summary.innerHTML = `
+      <div class="label">Result</div>
+      <div class="message">${text}</div>
+    `;
     summary.classList.remove('hidden');
   }
 
   function drawError(msg) {
-    ctx.fillStyle = 'rgba(10,10,10,0.78)';
-    ctx.fillRect(0, canvas.height/2 - 30, canvas.width, 60);
-    ctx.fillStyle = '#fffaf0';
-    ctx.font = `${Math.floor(canvas.width / 30)}px sans-serif`;
+    const fontSize = Math.floor(canvas.width / 28);
+    const padding = fontSize * 0.6;
+    ctx.font = `500 ${fontSize}px Inter, sans-serif`;
+    const w = ctx.measureText(msg).width + padding * 2;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(canvas.width/2 - w/2, canvas.height/2 - fontSize, w, fontSize * 2);
+    ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(msg, canvas.width/2, canvas.height/2);
@@ -842,12 +962,12 @@
   function drawSkeleton(lm) {
     const drawingUtils = new DrawingUtils(ctx);
     drawingUtils.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, {
-      color: 'rgba(255,250,240,0.55)',
+      color: 'rgba(0,0,0,0.45)',
       lineWidth: Math.max(2, canvas.width / 400)
     });
     drawingUtils.drawLandmarks(lm, {
       radius: Math.max(2, canvas.width / 250),
-      color: '#fffaf0'
+      color: '#000000'
     });
   }
 
@@ -863,17 +983,14 @@
   }
 
   function drawLabel(text, y, color) {
-    const fontSize = Math.max(14, Math.floor(canvas.width / 35));
-    ctx.font = `600 ${fontSize}px Inter, sans-serif`;
-    const padding = fontSize * 0.45;
+    const fontSize = Math.max(14, Math.floor(canvas.width / 38));
+    ctx.font = `500 ${fontSize}px Inter, sans-serif`;
+    const padding = fontSize * 0.4;
     const w = ctx.measureText(text).width + padding * 2;
     const yPx = y * canvas.height;
     ctx.fillStyle = color;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(0, yPx - fontSize - padding/2, w, fontSize + padding, 6);
-    else ctx.rect(0, yPx - fontSize - padding/2, w, fontSize + padding);
-    ctx.fill();
-    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, yPx - fontSize - padding/2, w, fontSize + padding);
+    ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, padding, yPx - fontSize/2);
@@ -886,13 +1003,13 @@
     ctx.lineWidth = Math.max(2, canvas.width / 280);
     ctx.strokeRect(px - halfW, py - halfH, halfW * 2, halfH * 2);
     if (label) {
-      const fontSize = Math.max(14, Math.floor(canvas.width / 45));
-      ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+      const fontSize = Math.max(13, Math.floor(canvas.width / 48));
+      ctx.font = `500 ${fontSize}px Inter, sans-serif`;
       const padding = fontSize * 0.35;
       const labelW = ctx.measureText(label).width + padding * 2;
       ctx.fillStyle = color;
       ctx.fillRect(px + halfW + 6, py - halfH, labelW, fontSize + padding);
-      ctx.fillStyle = '#0a0a0a';
+      ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
       ctx.fillText(label, px + halfW + 6 + padding, py - halfH + padding/2);
@@ -925,15 +1042,15 @@
     const lk = lm[25], rk = lm[26];
     const la = lm[27], ra = lm[28];
     if (!lh || !rh || !lk || !rk || (lk.visibility ?? 1) < 0.4 || (rk.visibility ?? 1) < 0.4) {
-      updateCheck('skirt', 'warn', '膝が見えないよ', '下半身もしっかりうつしてみよう');
+      updateCheck('skirt', 'warn', '膝が見つかりません', '下半身もしっかり画角に入れてください');
       return 'warn';
     }
     const kneeY = (lk.y + rk.y) / 2;
     const ankleY = ((la?.y ?? kneeY + 0.15) + (ra?.y ?? kneeY + 0.15)) / 2;
     const hipY = (lh.y + rh.y) / 2;
 
-    drawHorizontalLine(kneeY, '#e8b94a', true);
-    drawLabel('膝の高さ', kneeY, '#e8b94a');
+    drawHorizontalLine(kneeY, '#000000', true);
+    drawLabel('膝の高さ', kneeY, '#000000');
 
     const w = sampleCanvas.width, h = sampleCanvas.height;
     const cx = (lh.x + rh.x) / 2;
@@ -943,7 +1060,7 @@
 
     const baseline = sampleColumn(sampleCtx, px, startY, startY + 8, 6, w, h);
     if (!baseline) {
-      updateCheck('skirt', 'warn', '計測できないかも', '色をうまく読み取れなかったよ');
+      updateCheck('skirt', 'warn', '計測できません', '色をうまく読み取れませんでした');
       return 'warn';
     }
     const THRESHOLD = 45;
@@ -962,30 +1079,30 @@
     }
 
     if (hemY < 0) {
-      updateCheck('skirt', 'warn', '裾が見つからないよ', '黄色の線が膝の高さ。自分でも見比べてみてね');
+      updateCheck('skirt', 'warn', '裾が見つかりません', '黒の線が膝の高さです。目視で確認してください。');
       return 'warn';
     }
 
-    drawHorizontalLine(hemY, '#a4d4c5');
-    drawLabel('スカート裾', hemY, '#a4d4c5');
+    drawHorizontalLine(hemY, '#22c55e');
+    drawLabel('スカート裾', hemY, '#22c55e');
 
     const kneeAnkle = ankleY - kneeY;
     if (kneeAnkle <= 0.01) {
-      updateCheck('skirt', 'warn', '計測不可', '');
+      updateCheck('skirt', 'warn', '計測できません', '');
       return 'warn';
     }
     const cm = ((hemY - kneeY) / kneeAnkle) * 40;
     if (cm < -3) {
-      updateCheck('skirt', 'ng', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'ちょっと短いかも。下げてみよう');
+      updateCheck('skirt', 'ng', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'ちょっと短いかも。下げてみよう。');
       return 'ng';
     } else if (cm < -0.5) {
-      updateCheck('skirt', 'warn', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'もうちょっとだけ下げてみよう');
+      updateCheck('skirt', 'warn', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'もうちょっとだけ下げてみよう。');
       return 'warn';
     } else if (cm < 1.5) {
-      updateCheck('skirt', 'warn', '膝の高さ付近', 'ちょうど膝のところ');
+      updateCheck('skirt', 'warn', '膝の高さ付近', 'ちょうど膝の位置です。');
       return 'warn';
     } else {
-      updateCheck('skirt', 'ok', `膝より約 ${cm.toFixed(1)} cm 下`, 'ばっちりだよ〜');
+      updateCheck('skirt', 'ok', `膝より約 ${cm.toFixed(1)} cm 下`, 'ばっちりです。');
       return 'ok';
     }
   }
@@ -1000,11 +1117,11 @@
     if (lConf >= rConf && lConf > 0.4) { knee = lk; ankle = la; }
     else if (rConf > 0.4)               { knee = rk; ankle = ra; }
     else {
-      updateCheck('sock', 'warn', '足が見つからないよ', '足元もうつしてみよう');
+      updateCheck('sock', 'warn', '足が見つかりません', '足元も画角に入れてください。');
       return 'warn';
     }
     if (!ankle || ankle.y <= knee.y) {
-      updateCheck('sock', 'warn', '計測できないかも', '');
+      updateCheck('sock', 'warn', '計測できません', '');
       return 'warn';
     }
 
@@ -1013,13 +1130,13 @@
     const yLow  = Math.floor((ankle.y - 0.02) * h);
     const yHigh = Math.floor((knee.y + 0.02) * h);
     if (yLow <= yHigh) {
-      updateCheck('sock', 'warn', '計測できないかも', '');
+      updateCheck('sock', 'warn', '計測できません', '');
       return 'warn';
     }
 
     const baseline = sampleColumn(sampleCtx, px, yLow - 10, yLow, 6, w, h);
     if (!baseline) {
-      updateCheck('sock', 'warn', '計測できないかも', '');
+      updateCheck('sock', 'warn', '計測できません', '');
       return 'warn';
     }
 
@@ -1027,21 +1144,19 @@
     const REQUIRED = 3;
     let consec = 0;
     let sockTopY = knee.y;
-    let foundTransition = false;
     for (let y = yLow - 1; y >= yHigh; y--) {
       const row = sampleColumn(sampleCtx, px, y, y + 1, 6, w, h);
       if (!row) continue;
       if (colorDelta(row, baseline) > THRESHOLD) {
         if (++consec >= REQUIRED) {
           sockTopY = (y + REQUIRED) / h;
-          foundTransition = true;
           break;
         }
       } else { consec = 0; }
     }
 
-    drawHorizontalLine(sockTopY, '#ff4d8b');
-    drawLabel('ソックス上端', sockTopY, '#ff4d8b');
+    drawHorizontalLine(sockTopY, '#e11d48');
+    drawLabel('ソックス上端', sockTopY, '#e11d48');
 
     const covered = Math.max(0, Math.min(1, 1 - (sockTopY - knee.y) / (ankle.y - knee.y)));
     const cls = covered > 0.75 ? 'high' : covered > 0.35 ? 'short' : 'ankle';
@@ -1056,22 +1171,22 @@
     const pct = `膝〜足首間で${Math.round(covered * 100)}%カバー`;
 
     if (cls === 'ankle' && (ankleForbidden || !expected.includes('ankle'))) {
-      updateCheck('sock', 'ng', label, `くるぶし丈はこのモードでは規定外。ハイソックスにしてみよう（${pct}）`);
+      updateCheck('sock', 'ng', label, `くるぶし丈はこのモードでは規定外。ハイソックスにしましょう（${pct}）`);
       return 'ng';
     }
     if (expected.includes(cls)) {
-      updateCheck('sock', 'ok', label, `ばっちりだよ〜（${pct}）`);
+      updateCheck('sock', 'ok', label, `規定どおり（${pct}）`);
       return 'ok';
     }
     if (expected.includes('high') && cls === 'short') {
-      updateCheck('sock', 'ng', label, `このモードはハイソックスが必須だよ（${pct}）`);
+      updateCheck('sock', 'ng', label, `このモードはハイソックスが必須です（${pct}）`);
       return 'ng';
     }
     if (expected.includes('short') && cls === 'high') {
-      updateCheck('sock', 'warn', label, `ちょっと長めかも（${pct}）`);
+      updateCheck('sock', 'warn', label, `想定より長いソックスです（${pct}）`);
       return 'warn';
     }
-    updateCheck('sock', 'warn', label, `ちょっと違う丈かも（${pct}）`);
+    updateCheck('sock', 'warn', label, `想定外の丈です（${pct}）`);
     return 'warn';
   }
 
@@ -1081,8 +1196,7 @@
     const lh = lm[23], rh = lm[24];
     if (!ls || !rs || !lh || !rh ||
         (ls.visibility ?? 1) < 0.4 || (rs.visibility ?? 1) < 0.4) {
-      updateCheck('under_jacket', 'warn', '上半身が見えないよ',
-        '肩から胸までうつしてみよう');
+      updateCheck('under_jacket', 'warn', '上半身が見えません', '肩から胸までを画角に入れてください。');
       return 'warn';
     }
 
@@ -1092,7 +1206,7 @@
     const chestX    = (ls.x + rs.x) / 2;
     const torsoH    = hipY - shoulderY;
     if (torsoH <= 0.05) {
-      updateCheck('under_jacket', 'warn', '計測できないかも', '');
+      updateCheck('under_jacket', 'warn', '計測できません', '');
       return 'warn';
     }
 
@@ -1108,12 +1222,12 @@
     const vSample = sampleColumn(sampleCtx, vCx, vCy - halfY, vCy + halfY, halfX, w, h);
     const jSample = sampleColumn(sampleCtx, jCx, vCy - halfY, vCy + halfY, halfX, w, h);
     if (!vSample || !jSample) {
-      updateCheck('under_jacket', 'warn', '計測できないかも', '');
+      updateCheck('under_jacket', 'warn', '計測できません', '');
       return 'warn';
     }
 
-    drawSampleBox(chestX,  vY, halfX, halfY, '#b8a4ed', 'V開口部');
-    drawSampleBox(jacketX, vY, halfX * 0.8, halfY * 0.8, 'rgba(184,164,237,0.5)', '');
+    drawSampleBox(chestX,  vY, halfX, halfY, '#7c3aed', 'V開口部');
+    drawSampleBox(jacketX, vY, halfX * 0.8, halfY * 0.8, 'rgba(124,58,237,0.45)', '');
 
     const vBright = (vSample.r + vSample.g + vSample.b) / 3;
     const jBright = (jSample.r + jSample.g + jSample.b) / 3;
@@ -1122,15 +1236,15 @@
     if (rule.expected_visible === 'shirt') {
       if (delta > 50) {
         updateCheck('under_jacket', 'ok', 'Yシャツのみ',
-          `ジャケットの下にYシャツが見えるよ。正装ばっちり（明度差 ${Math.round(delta)}）`);
+          `ジャケットの下にYシャツが見えています。正装の通り（明度差 ${Math.round(delta)}）`);
         return 'ok';
       } else if (delta > 15) {
-        updateCheck('under_jacket', 'warn', '判定がむずかしいかも',
-          `明度差が小さくて確実に判定できないよ。明るいところで撮りなおしてみよう（差 ${Math.round(delta)}）`);
+        updateCheck('under_jacket', 'warn', '判定が難しい',
+          `明度差が小さく確実に判定できません。明るいところで撮り直してください（差 ${Math.round(delta)}）`);
         return 'warn';
       } else {
         updateCheck('under_jacket', 'ng', 'ベスト/セーターありそう',
-          `正装はYシャツだけだよ。ベストかセーターを脱いでみよう（差 ${Math.round(delta)}）`);
+          `正装はYシャツのみです。ベストかセーターを脱いでください（差 ${Math.round(delta)}）`);
         return 'ng';
       }
     }
@@ -1138,14 +1252,14 @@
     if (rule.expected_visible === 'navy_layer') {
       if (Math.abs(delta) < 20) {
         updateCheck('under_jacket', 'ok', '紺の層を確認',
-          `紺の層がジャケットの下に見えるよ（明度差 ${Math.round(delta)}）`);
+          `紺の層がジャケットの下に見えています（明度差 ${Math.round(delta)}）`);
         return 'ok';
       } else if (delta > 50) {
-        updateCheck('under_jacket', 'ng', 'ベストが見えないかも',
-          `Yシャツだけになってない？ベスト着てるか確認してみよう（差 ${Math.round(delta)}）`);
+        updateCheck('under_jacket', 'ng', 'ベストが見えません',
+          `Yシャツだけになっていないか、ベストの着用を確認してください（差 ${Math.round(delta)}）`);
         return 'ng';
       } else {
-        updateCheck('under_jacket', 'warn', '判定がむずかしいかも', '');
+        updateCheck('under_jacket', 'warn', '判定が難しい', '');
         return 'warn';
       }
     }
