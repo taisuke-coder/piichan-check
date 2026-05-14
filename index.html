@@ -1111,13 +1111,22 @@
   function checkSock(lm, rule) {
     const lk = lm[25], rk = lm[26];
     const la = lm[27], ra = lm[28];
-    const lConf = ((lk?.visibility ?? 0) + (la?.visibility ?? 0)) / 2;
-    const rConf = ((rk?.visibility ?? 0) + (ra?.visibility ?? 0)) / 2;
+    const VIS = 0.25;
+    const lkV = lk?.visibility ?? 0, laV = la?.visibility ?? 0;
+    const rkV = rk?.visibility ?? 0, raV = ra?.visibility ?? 0;
+    const lOK = lkV > VIS && laV > VIS;
+    const rOK = rkV > VIS && raV > VIS;
+    const lMin = Math.min(lkV, laV);
+    const rMin = Math.min(rkV, raV);
     let knee, ankle;
-    if (lConf >= rConf && lConf > 0.4) { knee = lk; ankle = la; }
-    else if (rConf > 0.4)               { knee = rk; ankle = ra; }
+    if (lOK && (!rOK || lMin >= rMin)) { knee = lk; ankle = la; }
+    else if (rOK)                       { knee = rk; ankle = ra; }
     else {
-      updateCheck('sock', 'warn', '足が見つかりません', '足元も画角に入れてください。');
+      const kneeOK = lkV > VIS || rkV > VIS;
+      const msg = kneeOK
+        ? '足首までしっかり画角に入れてください。'
+        : '下半身も画角に入れてください。';
+      updateCheck('sock', 'warn', '足が見つかりません', msg);
       return 'warn';
     }
     if (!ankle || ankle.y <= knee.y) {
