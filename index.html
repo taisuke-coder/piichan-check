@@ -1086,21 +1086,21 @@
     drawHorizontalLine(hemY, '#22c55e');
     drawLabel('スカート裾', hemY, '#22c55e');
 
-    const kneeAnkle = ankleY - kneeY;
-    if (kneeAnkle <= 0.01) {
+    const thigh = kneeY - hipY;
+    if (thigh <= 0.01) {
       updateCheck('skirt', 'warn', '計測できません', '');
       return 'warn';
     }
-    const cm = ((hemY - kneeY) / kneeAnkle) * 40;
-    if (cm < -3) {
-      updateCheck('skirt', 'ng', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'ちょっと短いかも。下げてみよう。');
+    const cm = ((hemY - kneeY) / thigh) * 40;
+    if (cm < -5) {
+      updateCheck('skirt', 'ng', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, '短いかも。下げてみよう。');
       return 'ng';
-    } else if (cm < -0.5) {
-      updateCheck('skirt', 'warn', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'もうちょっとだけ下げてみよう。');
+    } else if (cm < -3) {
+      updateCheck('skirt', 'warn', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, 'ボーダーライン。別アングルで撮り直してみよう。');
       return 'warn';
-    } else if (cm < 1.5) {
-      updateCheck('skirt', 'warn', '膝の高さ付近', 'ちょうど膝の位置です。');
-      return 'warn';
+    } else if (cm < 0) {
+      updateCheck('skirt', 'ok', `膝より約 ${Math.abs(cm).toFixed(1)} cm 上`, '許容範囲内。');
+      return 'ok';
     } else {
       updateCheck('skirt', 'ok', `膝より約 ${cm.toFixed(1)} cm 下`, 'ばっちりです。');
       return 'ok';
