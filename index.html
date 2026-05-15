@@ -643,20 +643,101 @@
     margin: 0;
     line-height: 1.2;
   }
-  .summary .score-row {
-    margin-top: 8px;
-    display: flex; align-items: baseline; gap: 4px;
+  /* Score reveal — animated ring + count-up */
+  .summary.has-ring {
+    text-align: center;
+    padding: 18px 18px 22px;
   }
-  .summary .score-row .number {
+  .summary.has-ring .label { display: inline-block; }
+
+  .score-ring {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 14px auto 14px;
+  }
+  .score-ring svg {
+    display: block;
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+  .score-ring .ring-bg {
+    fill: none;
+    stroke: rgba(26, 21, 48, 0.16);
+    stroke-width: 11;
+  }
+  .score-ring .ring-fg {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 11;
+    stroke-linecap: round;
+  }
+  .summary.ng .score-ring .ring-bg { stroke: rgba(245, 241, 255, 0.28); }
+  .summary.ng .score-ring .ring-fg { stroke: var(--paper); }
+
+  .score-ring .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-heading);
-    font-size: 28px;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .score-ring .score-text .number {
+    font-size: 48px;
     font-weight: 700;
+    color: var(--ink);
+    display: inline-block;
+    transform-origin: center;
   }
-  .summary .score-row .denom {
-    font-family: var(--font-heading);
+  .score-ring .score-text .denom {
     font-size: 14px;
     font-weight: 700;
-    opacity: 0.7;
+    color: var(--ink);
+    opacity: 0.55;
+    align-self: flex-end;
+    margin-bottom: 8px;
+    margin-left: 2px;
+  }
+  .summary.ng .score-ring .score-text .number,
+  .summary.ng .score-ring .score-text .denom { color: var(--paper); }
+  .summary.ng .score-ring .score-text .denom { opacity: 0.7; }
+
+  @keyframes scorePop {
+    0%   { transform: scale(1); }
+    55%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+  .summary.revealed .score-ring .score-text .number {
+    animation: scorePop 0.42s ease;
+  }
+
+  .summary .reveal-tag {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 4px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    background: var(--card);
+    color: var(--ink);
+    margin-bottom: 8px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .summary.ng .reveal-tag { background: var(--paper); }
+
+  .summary .reveal-block {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .summary.revealed .reveal-block {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .check-list {
@@ -1825,16 +1906,74 @@
   }
 
   function showSummary(level, text, score) {
-    summary.className = 'summary ' + level;
-    const scoreRow = (typeof score === 'number')
-      ? `<div class="score-row"><span class="number">${score}</span><span class="denom">/100</span></div>`
-      : '';
+    if (typeof score !== 'number') {
+      // No-score summary (e.g. no person detected)
+      summary.className = 'summary ' + level;
+      summary.innerHTML = `
+        <div class="label">Result</div>
+        <div class="message">${escapeHTML(text)}</div>
+      `;
+      summary.classList.remove('hidden');
+      return;
+    }
+
+    // Score reveal: animated ring + count-up + delayed message
+    const tagText = level === 'ok' ? 'OK' : level === 'warn' ? '要直し' : '直そう';
+    summary.className = 'summary has-ring ' + level;
     summary.innerHTML = `
       <div class="label">Result</div>
-      <div class="message">${escapeHTML(text)}</div>
-      ${scoreRow}
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fg" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="score-text">
+          <span class="number">0</span><span class="denom">/100</span>
+        </div>
+      </div>
+      <div class="reveal-block">
+        <div class="reveal-tag">${tagText}</div>
+        <div class="message">${escapeHTML(text)}</div>
+      </div>
     `;
     summary.classList.remove('hidden');
+    animateScoreReveal(summary, score);
+  }
+
+  function animateScoreReveal(summaryEl, targetScore) {
+    const ringFg = summaryEl.querySelector('.ring-fg');
+    const numEl  = summaryEl.querySelector('.score-text .number');
+    if (!ringFg || !numEl) return;
+
+    const radius = 52;
+    const circumference = 2 * Math.PI * radius;
+    ringFg.style.strokeDasharray  = String(circumference);
+    ringFg.style.strokeDashoffset = String(circumference); // start fully empty
+    numEl.textContent = '0';
+
+    // Force reflow before animating
+    ringFg.getBoundingClientRect();
+
+    const duration = 1400;
+    const start = performance.now();
+    const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+    const targetOffset = circumference * (1 - targetScore / 100);
+
+    function frame(now) {
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / duration);
+      const eased = easeOutCubic(t);
+      numEl.textContent = String(Math.round(targetScore * eased));
+      ringFg.style.strokeDashoffset = String(circumference - (circumference - targetOffset) * eased);
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        numEl.textContent = String(targetScore);
+        ringFg.style.strokeDashoffset = String(targetOffset);
+        summaryEl.classList.add('revealed');
+      }
+    }
+    requestAnimationFrame(frame);
   }
 
   function saveResultToHistory({ score, level, summary, checkedItems }) {
