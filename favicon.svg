@@ -1,6 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect x="3" y="3" width="58" height="58" rx="14" fill="#FF4DA0" stroke="#1a1530" stroke-width="3"/>
-  <path d="M32 8 L37 27 L56 32 L37 37 L32 56 L27 37 L8 32 L27 27 Z"
-        fill="#FFD93D" stroke="#1a1530" stroke-width="2.5"
-        stroke-linejoin="round" stroke-linecap="round"/>
+  <rect width="64" height="64" rx="14" fill="#FF4DA0"/>
+
+  <!-- Body — pear-shaped, sitting upright -->
+  <ellipse cx="30" cy="42" rx="17" ry="13" fill="#FFD93D"/>
+
+  <!-- Tail — fan-shaped on the back-left, with three feather divisions -->
+  <path d="M 14 36 L 2 30 L 6 38 L 2 42 L 8 46 L 14 46 Z" fill="#FFD93D"/>
+  <path d="M 6 30 L 2 30 L 6 38 Z" fill="#FFB300" opacity="0.45"/>
+  <path d="M 6 46 L 2 42 L 8 46 Z" fill="#FFB300" opacity="0.45"/>
+
+  <!-- Head — distinctly smaller circle, clearly on top of body -->
+  <circle cx="38" cy="22" r="10" fill="#FFD93D"/>
+
+  <!-- Beak — large prominent forward-pointing triangle -->
+  <path d="M 52 21 L 44 17 L 44 26 Z" fill="#FF6B00"/>
+
+  <!-- Eye — visible round eye with white highlight -->
+  <circle cx="40" cy="20" r="2.6" fill="#1a1530"/>
+  <circle cx="40.8" cy="19.2" r="0.8" fill="#FFFFFF"/>
+
+  <!-- Wing — orange shape on body with a small fold line -->
+  <path d="M 20 36 Q 34 36 38 50 Q 26 46 20 36 Z" fill="#FFB300"/>
+
+  <!-- Feet — two small orange sticks -->
+  <rect x="26" y="54" width="2.8" height="5.5" rx="1" fill="#FF6B00"/>
+  <rect x="32" y="54" width="2.8" height="5.5" rx="1" fill="#FF6B00"/>
 </svg>
