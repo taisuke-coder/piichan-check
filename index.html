@@ -65,7 +65,7 @@
      Home — header
      ========================================================================= */
   .home-header {
-    padding: 22px 4px 8px;
+    padding: 22px 4px 4px;
   }
   .home-header h1 {
     font-family: var(--font-heading);
@@ -76,6 +76,64 @@
     letter-spacing: 0;
   }
   .home-header h1 .accent { color: var(--a1); }
+
+  /* =========================================================================
+     Pi-chan mascot + speech bubble
+     ========================================================================= */
+  .pi-greeting {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 12px 0 16px;
+  }
+  .pi-mascot {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    filter: drop-shadow(2px 2px 0 var(--ink));
+  }
+  .pi-mascot svg {
+    width: 100%; height: 100%;
+    display: block;
+  }
+  .pi-bubble {
+    flex: 1;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+    padding: 10px 12px;
+    position: relative;
+    box-shadow: var(--shadow-fab);
+    font-family: var(--font-heading);
+    font-size: 13px;
+    line-height: 1.45;
+    font-weight: 700;
+    color: var(--ink);
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+  .pi-bubble::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 18px;
+    width: 12px; height: 12px;
+    background: var(--card);
+    border-left: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    transform: rotate(45deg);
+  }
+
+  /* Inline Pi-chan icon for use in summary, loading etc */
+  .pi-inline {
+    width: 36px;
+    height: 36px;
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    filter: drop-shadow(1.5px 1.5px 0 var(--ink));
+  }
 
   .screen-title {
     font-family: var(--font-heading);
@@ -1067,13 +1125,33 @@
       <h1>今日の<span class="accent">身だしなみ</span></h1>
     </header>
 
+    <div class="pi-greeting">
+      <div class="pi-mascot">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="ピーちゃん">
+          <rect width="64" height="64" rx="14" fill="#FF4DA0"/>
+          <ellipse cx="30" cy="42" rx="17" ry="13" fill="#FFD93D"/>
+          <path d="M 14 36 L 2 30 L 6 38 L 2 42 L 8 46 L 14 46 Z" fill="#FFD93D"/>
+          <path d="M 6 30 L 2 30 L 6 38 Z" fill="#FFB300" opacity="0.45"/>
+          <path d="M 6 46 L 2 42 L 8 46 Z" fill="#FFB300" opacity="0.45"/>
+          <circle cx="38" cy="22" r="10" fill="#FFD93D"/>
+          <path d="M 52 21 L 44 17 L 44 26 Z" fill="#FF6B00"/>
+          <circle cx="40" cy="20" r="2.6" fill="#1a1530"/>
+          <circle cx="40.8" cy="19.2" r="0.8" fill="#FFFFFF"/>
+          <path d="M 20 36 Q 34 36 38 50 Q 26 46 20 36 Z" fill="#FFB300"/>
+          <rect x="26" y="54" width="2.8" height="5.5" rx="1" fill="#FF6B00"/>
+          <rect x="32" y="54" width="2.8" height="5.5" rx="1" fill="#FF6B00"/>
+        </svg>
+      </div>
+      <div class="pi-bubble" id="piBubble">ピピピピピー！今日も一緒にチェックしよう♪</div>
+    </div>
+
     <div id="heroCard" class="hero-card"></div>
 
     <button class="cta" id="ctaBtn">
       <span class="cta-icon" aria-hidden="true"></span>
       <span>いますぐチェック</span>
     </button>
-    <p class="cta-hint">撮ったあとにモードを選びます</p>
+    <p class="cta-hint">撮ったらピーちゃんがチェックするよ♪</p>
 
     <div class="mode-section">
       <p class="mode-section-label">または モードから</p>
@@ -1113,11 +1191,11 @@
           <path d="M21 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.17a2 2 0 0 0 1.42-.59l1.83-1.83a2 2 0 0 1 1.42-.59h2.32a2 2 0 0 1 1.42.59l1.83 1.83a2 2 0 0 0 1.42.59H19a2 2 0 0 1 2 2v11Z"/>
           <circle cx="12" cy="13" r="3.2"/>
         </svg>
-        <div class="message">写真を撮るかアルバムから選ぼう</div>
-        <span class="hint">全身が映った写真を解析します</span>
+        <div class="message">写真を撮ろう♪</div>
+        <span class="hint">全身が映ってるとピーちゃんが見やすいよ！</span>
       </div>
       <canvas id="resultCanvas" class="hidden"></canvas>
-      <div class="loading hidden" id="loading">解析中…</div>
+      <div class="loading hidden" id="loading">ピピピピピー！見てるよ〜</div>
     </div>
 
     <div class="actions">
@@ -1382,17 +1460,56 @@
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
         if (history.length === 0) {
-          alert('まだ記録はありません');
+          alert('まだ記録ないよ〜 ピピピピピー！');
           return;
         }
-        if (confirm('履歴をすべて消しますか？\n（元には戻せません）')) {
+        if (confirm('本当に全部消しちゃう？\n（ピーちゃん寂しいけど…元には戻せないよ）')) {
           history = [];
           saveHistory();
           renderHistoryFull();
-          alert('消しました');
+          alert('消したよ〜！ピピピピピー！');
         }
       });
     }
+  }
+
+  // =========================================================================
+  // Pi-chan random greeting on home
+  // =========================================================================
+  const PI_GREETINGS_DEFAULT = [
+    'ピピピピピー！今日も一緒にチェックしよう♪',
+    'ピピッ！見てるよ〜',
+    'ピーちゃん今日も応援してるよ！',
+    'ピピピピピー！今日もキラリ整えよう♪',
+    'おはよう〜！今日も元気？ピピピピピー！'
+  ];
+  const PI_GREETINGS_AFTER_OK = [
+    'さっきはばっちりだったね！ピピピピピー！',
+    'キラキラだったよ〜♪今日も？',
+    'いい感じ！この調子で行こう！'
+  ];
+  const PI_GREETINGS_AFTER_WARN = [
+    '昨日のとこ、もう一回見てみる？',
+    'ピピッ！今日はばっちり狙ってこ♪',
+    '一緒にがんばろうね！'
+  ];
+
+  function pickPiGreeting() {
+    const last = history[0];
+    let pool = PI_GREETINGS_DEFAULT;
+    if (last) {
+      const tsAge = Date.now() - last.ts;
+      const within2h = tsAge < 2 * 60 * 60 * 1000;
+      if (within2h) {
+        pool = last.level === 'ok' ? PI_GREETINGS_AFTER_OK : PI_GREETINGS_AFTER_WARN;
+      }
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function refreshPiGreeting() {
+    const el = document.getElementById('piBubble');
+    if (el) el.textContent = pickPiGreeting();
   }
 
   // =========================================================================
@@ -1430,6 +1547,7 @@
   // Home rendering
   // =========================================================================
   function renderHome() {
+    refreshPiGreeting();
     renderHeroCard();
     renderModeChips();
     renderGenderToggle();
@@ -1441,8 +1559,8 @@
     if (!last) {
       heroCard.innerHTML = `
         <div class="hero-empty">
-          <p class="empty-title">まだチェックしていません</p>
-          <p class="empty-hint">下のボタンから今日の身だしなみをチェック</p>
+          <p class="empty-title">ピピピピピー！はじめまして！</p>
+          <p class="empty-hint">下のボタンで一緒にチェックしてみよう♪</p>
         </div>
       `;
       return;
@@ -1519,7 +1637,7 @@
     if (history.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'history-empty';
-      empty.textContent = 'まだ記録がありません';
+      empty.textContent = 'まだ記録ないよ〜 これから一緒に増やそう♪';
       historyList.appendChild(empty);
       return;
     }
@@ -1558,7 +1676,7 @@
     if (history.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'history-empty';
-      empty.textContent = 'まだ記録がありません';
+      empty.textContent = 'まだ記録ないよ〜 ピピピピピー！';
       list.appendChild(empty);
       return;
     }
@@ -1842,7 +1960,7 @@
       if (sr && sr.mode !== 'notice') updateCheck('sock', 'warn', '人物が見つかりません', '');
       if (checks.under_jacket)        updateCheck('under_jacket', 'warn', '人物が見つかりません', '');
       // No person → no score, no history entry
-      showSummary('warn', 'だれもうつっていません', null);
+      showSummary('warn', 'あれれ？だれもいないみたい！', null);
       return;
     }
 
@@ -1874,13 +1992,13 @@
 
     let summaryText;
     if (results.length === 0) {
-      summaryText = '確認するところがありません';
+      summaryText = 'チェックすることないみたい！ピピピピピー！';
     } else if (results.includes('ng')) {
-      summaryText = 'ちょっと直したいところがあります';
+      summaryText = 'ピピッ！ちょっと直したいとこあるよ〜';
     } else if (results.includes('warn')) {
-      summaryText = 'もうちょっと整えてみよう';
+      summaryText = 'もうちょっと！一緒に整えよう♪';
     } else {
-      summaryText = 'ばっちり。今日もきれい。';
+      summaryText = 'ばっちり！今日もキラリだね！ピピピピピー！';
     }
 
     finishAnalysis(results, summaryText, items);
