@@ -274,28 +274,23 @@
     margin: 0 0 6px;
   }
   .mode-chips {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    overflow-x: auto;
     padding-bottom: 4px;
-    scrollbar-width: none;
   }
-  .mode-chips::-webkit-scrollbar { display: none; }
 
   .mode-chip {
-    flex-shrink: 0;
     border: 2px solid var(--ink);
     border-radius: 999px;
-    padding: 7px 14px;
+    padding: 12px 0;
     font-family: var(--font-heading);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     background: var(--card);
     color: var(--ink);
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    text-align: center;
     box-shadow: 2px 2px 0 var(--ink);
     transition: transform 0.12s ease, box-shadow 0.12s ease;
     -webkit-appearance: none;
@@ -305,7 +300,6 @@
   .mode-chip[data-key="formal"].filled { background: var(--a4); }
   .mode-chip[data-key="summer"].filled { background: var(--a3); }
   .mode-chip[data-key="winter"].filled { background: var(--chip); }
-  .mode-chip .chip-emoji { font-size: 13px; line-height: 1; }
 
   /* =========================================================================
      Gender toggle
@@ -1354,9 +1348,9 @@
   // =========================================================================
   // chips on home: 正装 / 夏服 / 冬服 (3 per gender)
   const CHIP_DEFS = [
-    { key: 'formal', label: '正装', emoji: '🎓' },
-    { key: 'summer', label: '夏服', emoji: '☀️' },
-    { key: 'winter', label: '冬服', emoji: '❄️' }
+    { key: 'formal', label: '正装' },
+    { key: 'summer', label: '夏服' },
+    { key: 'winter', label: '冬服' }
   ];
   const MODE_LOOKUP = {
     male:   { formal: 'formal_male',   summer: 'summer_male',   winter: 'winter_male'   },
@@ -1525,7 +1519,7 @@
       if (def.key === 'formal' || def.key === 'summer' || def.key === lastChipKey) {
         btn.classList.add('filled');
       }
-      btn.innerHTML = `<span class="chip-emoji">${def.emoji}</span><span>${def.label}</span>`;
+      btn.textContent = def.label;
       btn.addEventListener('click', () => onChipClick(def.key));
       modeChips.appendChild(btn);
     });
@@ -1697,7 +1691,7 @@
 
   function askModeForCTA() {
     const opts = CHIP_DEFS.map(c => ({
-      label: `${c.emoji} ${c.label}`,
+      label: c.label,
       value: MODE_LOOKUP[prefs.gender][c.key]
     }));
     showSubModal('モードを選んでね', opts, (modeId) => {
