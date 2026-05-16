@@ -28,7 +28,11 @@
       "needs_bottoms_type": false,
       "checks": {
         "skirt_length": true,
-        "sock_length": { "expected": "high", "notes": "正装は制定の紺ハイソックス。" }
+        "sock_length": { "expected": "high", "notes": "正装は制定の紺ハイソックス。" },
+        "under_jacket": {
+          "expected_visible": "navy_layer",
+          "notes": "正装はジャケットの下に紺のベスト着用必須。"
+        }
       }
     },
     {
@@ -60,6 +64,10 @@
             "expected": ["high", "short"],
             "ankle_forbidden": true,
             "notes": "ハイソックス または男子用短め(同型同色まで可)。くるぶし丈は不可。"
+          },
+          "under_jacket": {
+            "expected_visible": "navy_layer",
+            "notes": "冬通常(女子)はジャケットの下にベスト または セーター着用必須。"
           }
         },
         "pants": {
@@ -67,6 +75,10 @@
           "sock_length": {
             "mode": "notice",
             "message": "ズボンに隠れて確認できません。制定の紺ソックスか同型同色を履いているか、自分でチェックしてね。"
+          },
+          "under_jacket": {
+            "expected_visible": "navy_layer",
+            "notes": "冬通常(女子)はジャケットの下にベスト または セーター着用必須。"
           }
         }
       }
