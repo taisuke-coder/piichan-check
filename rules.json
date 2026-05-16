@@ -28,7 +28,11 @@
       "needs_bottoms_type": false,
       "checks": {
         "skirt_length": true,
-        "sock_length": { "expected": "high", "notes": "正装は制定の紺ハイソックス。" }
+        "sock_length": { "expected": "high", "notes": "正装は制定の紺ハイソックス。" },
+        "under_jacket": {
+          "expected_visible": "navy_layer",
+          "notes": "正装はジャケットの下に紺のベスト着用必須。"
+        }
       }
     },
     {
