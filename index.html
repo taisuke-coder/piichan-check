@@ -791,6 +791,8 @@
   .check.ng   { background: var(--a1); color: var(--paper); }
   .check.ng .head   { background: var(--paper); color: var(--ink); }
   .check.ng .detail { color: var(--paper); opacity: 0.85; }
+  .check.info { background: #EDE7FB; }
+  .check.info .head { background: var(--card); }
   .check.disabled { opacity: 0.5; }
 
   .legend {
@@ -1779,7 +1781,7 @@
     if (!sockRule) {
       addCheck('sock', 'ソックス丈', '対象外', 'disabled', '');
     } else if (sockRule.mode === 'notice') {
-      addCheck('sock', 'ソックス丈', '自分で確認してね', 'warn',
+      addCheck('sock', 'ソックス丈', '自分で確認してね', 'info',
         sockRule.message || 'ズボンに隠れて見えないので、自分でチェックしてね');
     } else {
       addCheck('sock', 'ソックス丈', '計測待ち', null, sockRule.notes || '');
@@ -1875,8 +1877,9 @@
     const lm = result.landmarks[0];
     drawSkeleton(lm);
 
-    const results = [];
-    const items = [];
+    const results = [];   // auto-check results (ok/warn/ng) — drive the score
+    const items = [];     // labels of auto-checked items
+    const notices = [];   // notice-only items: info, do NOT affect score
 
     if (checks.skirt_length === true) {
       const r = checkSkirt(lm);
@@ -1889,8 +1892,8 @@
       results.push(r);
       items.push('ソックス丈');
     } else if (sockRule && sockRule.mode === 'notice') {
-      // notice-only: count as a warn so the score reflects it
-      results.push('warn');
+      // notice-only: informational, doesn't penalize score
+      notices.push('ソックス丈');
     }
     if (checks.under_jacket) {
       const r = checkUnderJacket(lm, checks.under_jacket);
@@ -1898,15 +1901,23 @@
       items.push('ジャケットの下');
     }
 
+    const noticeSuffix = notices.length
+      ? `（${notices.join('・')}は自分で見てね）`
+      : '';
+
     let summaryText;
     if (results.length === 0) {
-      summaryText = 'チェックすることないみたい！ピピピピピー！';
+      summaryText = notices.length
+        ? `自動チェックは対象外！${notices.join('・')}は自分で見てね♪`
+        : 'チェックすることないみたい！ピピピピピー！';
     } else if (results.includes('ng')) {
-      summaryText = 'ピピッ！ちょっと直したいとこあるよ〜';
+      summaryText = 'ピピッ！ちょっと直したいとこあるよ〜' + noticeSuffix;
     } else if (results.includes('warn')) {
-      summaryText = 'もうちょっと！一緒に整えよう♪';
+      summaryText = 'もうちょっと！一緒に整えよう♪' + noticeSuffix;
     } else {
-      summaryText = 'ばっちり！今日もキラリだね！ピピピピピー！';
+      summaryText = notices.length
+        ? `ばっちり！${notices.join('・')}は自分で見てね♪`
+        : 'ばっちり！今日もキラリだね！ピピピピピー！';
     }
 
     finishAnalysis(results, summaryText, items);
