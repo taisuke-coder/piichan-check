@@ -1961,6 +1961,9 @@
     checkList.innerHTML = '';
     const c = getEffectiveChecks();
 
+    // Uniform color check (always present — gives "is this the right uniform" overview)
+    addCheck('uniform', '制服', '計測待ち', null, '');
+
     addCheck('skirt', 'スカート丈',
       c.skirt_length === true ? '計測待ち' : '対象外',
       c.skirt_length === true ? null : 'disabled', '');
@@ -1977,6 +1980,12 @@
 
     if (c.under_jacket) {
       addCheck('under_jacket', 'ジャケットの下', '計測待ち', null, c.under_jacket.notes || '');
+    }
+
+    // Summer + Yシャツ女子はサマーベスト/セーター着用必須(自動判定不可なので notice)
+    if (selectedMode && selectedMode.id === 'summer_female' && selectedShirtType === 'shirt') {
+      addCheck('summer_vest', 'サマーベスト/セーター', '自分で確認してね', 'info',
+        '白のサマーベストまたは白セーターを着てるか自分でチェックしてね');
     }
   }
 
@@ -2069,6 +2078,11 @@
     const items = [];     // labels of auto-checked items
     const notices = [];   // notice-only items: info, do NOT affect score
 
+    // Uniform check FIRST — establishes whether subject is wearing the right uniform
+    const uniformResult = checkUniform(lm);
+    results.push(uniformResult);
+    items.push('制服');
+
     if (checks.skirt_length === true) {
       const r = checkSkirt(lm);
       results.push(r);
@@ -2088,13 +2102,19 @@
       results.push(r);
       items.push('ジャケットの下');
     }
+    if (selectedMode && selectedMode.id === 'summer_female' && selectedShirtType === 'shirt') {
+      notices.push('サマーベスト/セーター');
+    }
 
     const noticeSuffix = notices.length
       ? `（${notices.join('・')}は自分で見てね）`
       : '';
 
     let summaryText;
-    if (results.length === 0) {
+    if (uniformResult === 'ng') {
+      // Uniform mismatch is the headline — prioritize it
+      summaryText = 'ピピッ！制服じゃないみたいだよ〜 モード間違ってない？';
+    } else if (results.length === 0) {
       summaryText = notices.length
         ? `自動チェックは対象外！${notices.join('・')}は自分で見てね♪`
         : 'チェックすることないみたい！ピピピピピー！';
@@ -2351,6 +2371,144 @@
   function colorDelta(a, b) {
     const dr = a.r - b.r, dg = a.g - b.g, db = a.b - b.b;
     return Math.sqrt(dr*dr + dg*dg + db*db);
+  }
+
+  function rgb2hsv({ r, g, b }) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const d = max - min;
+    const v = max;
+    const s = max === 0 ? 0 : d / max;
+    let h = 0;
+    if (d !== 0) {
+      if (max === r)      h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else                h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    return { h, s, v };
+  }
+
+  // =========================================================================
+  // Uniform color check
+  // =========================================================================
+  // Color classes used by uniform check (HSV space, more robust to lighting).
+  const COLOR_TESTS = {
+    navy_dark: hsv => hsv.h >= 200 && hsv.h <= 260 && hsv.s >= 0.18 && hsv.v <= 0.35,
+    gray:      hsv => hsv.s <= 0.25 && hsv.v >= 0.18 && hsv.v <= 0.62,
+    white:     hsv => hsv.v >= 0.82 && hsv.s <= 0.18,
+    pink:      hsv => ((hsv.h >= 320) || (hsv.h <= 15)) && hsv.s >= 0.06 && hsv.s <= 0.50 && hsv.v >= 0.70,
+    sax_blue:  hsv => hsv.h >= 175 && hsv.h <= 220 && hsv.s >= 0.10 && hsv.s <= 0.55 && hsv.v >= 0.65
+  };
+
+  function matchAnyColor(rgb, classes) {
+    const hsv = rgb2hsv(rgb);
+    return classes.some(c => COLOR_TESTS[c] && COLOR_TESTS[c](hsv));
+  }
+
+  function getUniformSpec() {
+    if (!selectedMode) return null;
+    const id = selectedMode.id;
+    const isSummer = id.startsWith('summer_');
+    const isMale   = id.endsWith('_male');
+    const isFemale = id.endsWith('_female');
+    const spec = {};
+
+    spec.top = isSummer
+      ? ['white', 'navy_dark', 'pink', 'sax_blue']
+      : ['navy_dark']; // blazer
+
+    spec.bottom = isMale ? ['gray'] : ['navy_dark']; // navy plaid/skirt for female
+
+    // Sock only auto-checkable when female + skirt (pants hide socks)
+    const sockVisible =
+      (id === 'formal_female') ||
+      (isFemale && selectedBottomsType === 'skirt');
+    if (sockVisible) spec.sock = ['navy_dark'];
+
+    return spec;
+  }
+
+  function sampleRegion(cxNorm, cyNorm, halfFracX, halfFracY) {
+    const w = sampleCanvas.width, h = sampleCanvas.height;
+    if (!w || !h) return null;
+    const cx = Math.floor(cxNorm * w);
+    const halfW = Math.max(6, Math.floor(w * halfFracX));
+    const halfH = Math.max(6, Math.floor(h * halfFracY));
+    const y0 = Math.floor(cyNorm * h - halfH);
+    const y1 = Math.floor(cyNorm * h + halfH);
+    return sampleColumn(sampleCtx, cx, y0, y1, halfW, w, h);
+  }
+
+  // Returns 'ok' | 'warn' | 'ng', and updates the 'uniform' check card.
+  function checkUniform(lm) {
+    const spec = getUniformSpec();
+    if (!spec) {
+      updateCheck('uniform', null, '—', '');
+      return 'ok';
+    }
+
+    const ls = lm[11], rs = lm[12];
+    const lh = lm[23], rh = lm[24];
+    const lk = lm[25], rk = lm[26];
+    const la = lm[27], ra = lm[28];
+
+    const fails = [];
+    const debugColor = 'rgba(43,170,255,0.85)';
+
+    // TOP (chest): shoulder midpoint, dropped 35% toward hip
+    if (spec.top && ls && rs && lh && rh) {
+      const cx = (ls.x + rs.x) / 2;
+      const shoulderY = (ls.y + rs.y) / 2;
+      const hipY      = (lh.y + rh.y) / 2;
+      const cy = shoulderY + (hipY - shoulderY) * 0.35;
+      const color = sampleRegion(cx, cy, 0.04, 0.02);
+      drawSampleBox(cx, cy, sampleCanvas.width * 0.04, sampleCanvas.height * 0.02, debugColor, '上');
+      if (!color || !matchAnyColor(color, spec.top)) {
+        fails.push('上半身');
+      }
+    }
+
+    // BOTTOM (upper thigh): hip midpoint, dropped 30% toward knee
+    if (spec.bottom && lh && rh && lk && rk) {
+      const cx = (lh.x + rh.x) / 2;
+      const hipY  = (lh.y + rh.y) / 2;
+      const kneeY = (lk.y + rk.y) / 2;
+      const cy = hipY + (kneeY - hipY) * 0.30;
+      const color = sampleRegion(cx, cy, 0.03, 0.02);
+      drawSampleBox(cx, cy, sampleCanvas.width * 0.03, sampleCanvas.height * 0.02, debugColor, '下');
+      if (!color || !matchAnyColor(color, spec.bottom)) {
+        fails.push('下半身');
+      }
+    }
+
+    // SOCK (mid-shin): knee midpoint, dropped 60% toward ankle
+    if (spec.sock && lk && rk && la && ra) {
+      const cx = (lk.x + rk.x) / 2;
+      const kneeY  = (lk.y + rk.y) / 2;
+      const ankleY = (la.y + ra.y) / 2;
+      const cy = kneeY + (ankleY - kneeY) * 0.60;
+      const color = sampleRegion(cx, cy, 0.025, 0.015);
+      drawSampleBox(cx, cy, sampleCanvas.width * 0.025, sampleCanvas.height * 0.015, debugColor, '靴下');
+      if (!color || !matchAnyColor(color, spec.sock)) {
+        fails.push('ソックス');
+      }
+    }
+
+    if (fails.length === 0) {
+      updateCheck('uniform', 'ok', '制服OK', '色がモードと一致してるよ');
+      return 'ok';
+    }
+    if (fails.length === 1) {
+      updateCheck('uniform', 'warn', `${fails[0]} の色が制服と違うかも`,
+        '光や撮影角度で誤判定の可能性あり。撮り直すか目視確認してね');
+      return 'warn';
+    }
+    updateCheck('uniform', 'ng', `制服じゃないみたい？(${fails.join('・')})`,
+      '選択したモードの色と一致しません。モード違い or 私服の可能性');
+    return 'ng';
   }
 
   // =========================================================================
