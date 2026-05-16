@@ -791,6 +791,8 @@
   .check.ng   { background: var(--a1); color: var(--paper); }
   .check.ng .head   { background: var(--paper); color: var(--ink); }
   .check.ng .detail { color: var(--paper); opacity: 0.85; }
+  .check.info { background: #EDE7FB; }
+  .check.info .head { background: var(--card); }
   .check.disabled { opacity: 0.5; }
 
   .legend {
@@ -987,6 +989,66 @@
   .danger-btn:active { transform: translate(1px, 1px);   box-shadow: 1px 1px 0 var(--ink); }
 
   /* =========================================================================
+     Detail screen — single-record full view
+     ========================================================================= */
+  .detail-meta {
+    padding: 6px 4px 12px;
+  }
+  .detail-meta .when {
+    font-family: var(--font-heading);
+    font-size: 12px;
+    color: var(--sub);
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .detail-meta .mode {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+  .detail-photo {
+    width: 100%;
+    border: 2px solid var(--ink);
+    border-radius: 16px;
+    background: var(--card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 14px;
+  }
+  .detail-photo img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .detail-photo.empty {
+    aspect-ratio: 3 / 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sub);
+    font-family: var(--font-heading);
+    font-size: 13px;
+  }
+
+  /* clickable history row affordance */
+  .history-row, .history-full-row {
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .history-row:active, .history-full-row:active {
+    transform: translateY(1px);
+  }
+  .hero-card.clickable {
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  .hero-card.clickable:active {
+    transform: translateY(1px);
+  }
+
+  /* =========================================================================
      History full list
      ========================================================================= */
   .history-full-list {
@@ -1175,6 +1237,20 @@
     <div id="historyFullList" class="history-full-list"></div>
   </section>
 
+  <!-- ===== Detail screen ===== -->
+  <section id="detailScreen" class="hidden">
+    <div class="back-bar">
+      <button class="back-btn" id="detailBack">← 戻る</button>
+    </div>
+    <div class="detail-meta">
+      <div class="when" id="detailWhen"></div>
+      <div class="mode" id="detailMode"></div>
+    </div>
+    <div class="detail-photo" id="detailPhoto"></div>
+    <div class="summary" id="detailSummary"></div>
+    <div class="check-list" id="detailChecks"></div>
+  </section>
+
   <!-- ===== Tips screen ===== -->
   <section id="tipsScreen" class="hidden">
     <div class="back-bar">
@@ -1306,11 +1382,15 @@
   const historyScreen  = document.getElementById('historyScreen');
   const tipsScreen     = document.getElementById('tipsScreen');
   const settingsScreen = document.getElementById('settingsScreen');
+  const detailScreen   = document.getElementById('detailScreen');
 
   const SCREENS = {
     home: homeScreen, photo: photoScreen,
-    history: historyScreen, tips: tipsScreen, settings: settingsScreen
+    history: historyScreen, tips: tipsScreen, settings: settingsScreen,
+    detail: detailScreen
   };
+
+  let detailReturnTo = 'home';
 
   // home
   const heroCard     = document.getElementById('heroCard');
@@ -1403,6 +1483,11 @@
       b.addEventListener('click', () => showScreen('home'));
     });
 
+    const detailBack = document.getElementById('detailBack');
+    if (detailBack) {
+      detailBack.addEventListener('click', () => showScreen(detailReturnTo));
+    }
+
     const clearBtn = document.getElementById('settingsClearHistory');
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
@@ -1424,14 +1509,21 @@
   // =========================================================================
   // Screen navigation
   // =========================================================================
-  function showScreen(name) {
+  function showScreen(name, payload) {
     if (!SCREENS[name]) return;
     Object.entries(SCREENS).forEach(([k, el]) => {
       el.classList.toggle('hidden', k !== name);
     });
-    setActiveTab(name === 'photo' ? null : name);
+    const tabBucket = (name === 'photo' || name === 'detail') ? null : name;
+    setActiveTab(tabBucket);
     if (name === 'home')    renderHome();
     if (name === 'history') renderHistoryFull();
+    if (name === 'detail') {
+      const id   = payload && payload.id;
+      const from = (payload && payload.from) || 'home';
+      detailReturnTo = from;
+      renderDetailScreen(id);
+    }
     if (name === 'home') {
       // reset photo-flow state on returning
       selectedMode = null;
@@ -1465,6 +1557,8 @@
   function renderHeroCard() {
     const last = history[0];
     if (!last) {
+      heroCard.classList.remove('clickable');
+      heroCard.onclick = null;
       heroCard.innerHTML = `
         <div class="hero-empty">
           <p class="empty-title">ピピピピピー！はじめまして！</p>
@@ -1473,6 +1567,8 @@
       `;
       return;
     }
+    heroCard.classList.add('clickable');
+    heroCard.onclick = () => showScreen('detail', { id: last.id, from: 'home' });
     const tagText = last.level === 'ok' ? 'OK' : last.level === 'warn' ? '要直し' : '直そう';
     const ts = new Date(last.ts);
     const wd = ['日','月','火','水','木','金','土'][ts.getDay()];
@@ -1572,6 +1668,7 @@
         </div>
         <div class="history-score">${h.score}</div>
       `;
+      row.addEventListener('click', () => showScreen('detail', { id: h.id, from: 'home' }));
       historyList.appendChild(row);
     });
   }
@@ -1612,7 +1709,100 @@
         </div>
         <div class="score">${h.score}</div>
       `;
+      row.addEventListener('click', () => showScreen('detail', { id: h.id, from: 'history' }));
       list.appendChild(row);
+    });
+  }
+
+  function renderDetailScreen(entryId) {
+    const entry = history.find(h => h.id === entryId);
+    const backBtn = document.getElementById('detailBack');
+    backBtn.textContent = detailReturnTo === 'history' ? '← 履歴' : '← ホーム';
+
+    if (!entry) {
+      // entry not found (e.g. cleared) — fall back home
+      showScreen(detailReturnTo);
+      return;
+    }
+
+    const ts = new Date(entry.ts);
+    const wd = ['日','月','火','水','木','金','土'][ts.getDay()];
+    const whenText = `${ts.getFullYear()}/${String(ts.getMonth()+1).padStart(2,'0')}/${String(ts.getDate()).padStart(2,'0')} (${wd}) ${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}`;
+    document.getElementById('detailWhen').textContent = whenText;
+
+    let modeText = entry.modeLabel || '';
+    if (entry.bottomsType) modeText += ' / ' + (entry.bottomsType === 'skirt' ? 'スカート' : 'ズボン');
+    if (entry.shirtType)   modeText += ' / ' + (entry.shirtType === 'shirt' ? 'Yシャツ' : 'ポロシャツ');
+    document.getElementById('detailMode').textContent = modeText;
+
+    const photoEl = document.getElementById('detailPhoto');
+    if (entry.photo) {
+      photoEl.classList.remove('empty');
+      photoEl.innerHTML = `<img src="${entry.photo}" alt="">`;
+    } else {
+      photoEl.classList.add('empty');
+      photoEl.innerHTML = '写真がありません';
+    }
+
+    renderDetailSummary(entry);
+    renderDetailChecks(entry);
+  }
+
+  function renderDetailSummary(entry) {
+    const el = document.getElementById('detailSummary');
+    if (typeof entry.score !== 'number') {
+      el.className = 'summary ' + (entry.level || 'warn');
+      el.innerHTML = `
+        <div class="label">Result</div>
+        <div class="message">${escapeHTML(entry.summary || '')}</div>
+      `;
+      el.classList.remove('hidden');
+      return;
+    }
+    const tagText = entry.level === 'ok' ? 'OK' : entry.level === 'warn' ? '要直し' : '直そう';
+    const radius = 52;
+    const circumference = 2 * Math.PI * radius;
+    const targetOffset = circumference * (1 - entry.score / 100);
+    el.className = 'summary has-ring revealed ' + entry.level;
+    el.innerHTML = `
+      <div class="label">Result</div>
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="ring-bg" cx="60" cy="60" r="${radius}"/>
+          <circle class="ring-fg" cx="60" cy="60" r="${radius}"
+                  style="stroke-dasharray:${circumference};stroke-dashoffset:${targetOffset};"/>
+        </svg>
+        <div class="score-text">
+          <span class="number">${entry.score}</span><span class="denom">/100</span>
+        </div>
+      </div>
+      <div class="reveal-block" style="opacity:1;transform:none;">
+        <div class="reveal-tag">${tagText}</div>
+        <div class="message">${escapeHTML(entry.summary || '')}</div>
+      </div>
+    `;
+    el.classList.remove('hidden');
+  }
+
+  function renderDetailChecks(entry) {
+    const listEl = document.getElementById('detailChecks');
+    listEl.innerHTML = '';
+    if (!entry.checks || entry.checks.length === 0) {
+      const note = document.createElement('div');
+      note.className = 'history-empty';
+      note.textContent = 'この記録には項目別の詳細がありません';
+      listEl.appendChild(note);
+      return;
+    }
+    entry.checks.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'check' + (c.level ? ' ' + c.level : '');
+      div.innerHTML = `
+        <div class="head">${escapeHTML(c.title)}</div>
+        <div class="value">${escapeHTML(c.value)}</div>
+        <div class="detail">${escapeHTML(c.detail)}</div>
+      `;
+      listEl.appendChild(div);
     });
   }
 
@@ -1779,7 +1969,7 @@
     if (!sockRule) {
       addCheck('sock', 'ソックス丈', '対象外', 'disabled', '');
     } else if (sockRule.mode === 'notice') {
-      addCheck('sock', 'ソックス丈', '自分で確認してね', 'warn',
+      addCheck('sock', 'ソックス丈', '自分で確認してね', 'info',
         sockRule.message || 'ズボンに隠れて見えないので、自分でチェックしてね');
     } else {
       addCheck('sock', 'ソックス丈', '計測待ち', null, sockRule.notes || '');
@@ -1875,8 +2065,9 @@
     const lm = result.landmarks[0];
     drawSkeleton(lm);
 
-    const results = [];
-    const items = [];
+    const results = [];   // auto-check results (ok/warn/ng) — drive the score
+    const items = [];     // labels of auto-checked items
+    const notices = [];   // notice-only items: info, do NOT affect score
 
     if (checks.skirt_length === true) {
       const r = checkSkirt(lm);
@@ -1889,8 +2080,8 @@
       results.push(r);
       items.push('ソックス丈');
     } else if (sockRule && sockRule.mode === 'notice') {
-      // notice-only: count as a warn so the score reflects it
-      results.push('warn');
+      // notice-only: informational, doesn't penalize score
+      notices.push('ソックス丈');
     }
     if (checks.under_jacket) {
       const r = checkUnderJacket(lm, checks.under_jacket);
@@ -1898,15 +2089,23 @@
       items.push('ジャケットの下');
     }
 
+    const noticeSuffix = notices.length
+      ? `（${notices.join('・')}は自分で見てね）`
+      : '';
+
     let summaryText;
     if (results.length === 0) {
-      summaryText = 'チェックすることないみたい！ピピピピピー！';
+      summaryText = notices.length
+        ? `自動チェックは対象外！${notices.join('・')}は自分で見てね♪`
+        : 'チェックすることないみたい！ピピピピピー！';
     } else if (results.includes('ng')) {
-      summaryText = 'ピピッ！ちょっと直したいとこあるよ〜';
+      summaryText = 'ピピッ！ちょっと直したいとこあるよ〜' + noticeSuffix;
     } else if (results.includes('warn')) {
-      summaryText = 'もうちょっと！一緒に整えよう♪';
+      summaryText = 'もうちょっと！一緒に整えよう♪' + noticeSuffix;
     } else {
-      summaryText = 'ばっちり！今日もキラリだね！ピピピピピー！';
+      summaryText = notices.length
+        ? `ばっちり！${notices.join('・')}は自分で見てね♪`
+        : 'ばっちり！今日もキラリだね！ピピピピピー！';
     }
 
     finishAnalysis(results, summaryText, items);
@@ -2005,7 +2204,7 @@
   function saveResultToHistory({ score, level, summary, checkedItems }) {
     if (!selectedMode) return;
     let photoData = null;
-    try { photoData = makeThumbnail(canvas, 220); } catch {}
+    try { photoData = makeThumbnail(canvas, 480); } catch {}
 
     addHistoryEntry({
       id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()),
@@ -2018,6 +2217,7 @@
       level,
       summary,
       checkedItems,
+      checks: captureCheckData(),
       photo: photoData
     });
 
@@ -2025,6 +2225,24 @@
     prefs.lastBottomsType = selectedBottomsType;
     prefs.lastShirtType   = selectedShirtType;
     savePrefs();
+  }
+
+  function captureCheckData() {
+    const out = [];
+    document.querySelectorAll('#checkList .check').forEach(el => {
+      const id = (el.id || '').replace('check-', '');
+      if (!id) return;
+      const level = ['ok','warn','ng','info','disabled']
+        .find(c => el.classList.contains(c)) || null;
+      out.push({
+        id,
+        title: el.querySelector('.head')?.textContent || '',
+        value: el.querySelector('.value')?.textContent || '',
+        level,
+        detail: el.querySelector('.detail')?.textContent || ''
+      });
+    });
+    return out;
   }
 
   function makeThumbnail(srcCanvas, maxDim = 220) {
@@ -2156,20 +2374,36 @@
     const w = sampleCanvas.width, h = sampleCanvas.height;
     const cx = (lh.x + rh.x) / 2;
     const px = Math.floor(cx * w);
-    const startY = Math.floor((hipY + (kneeY - hipY) * 0.25) * h);
-    const endY   = Math.floor((kneeY + (ankleY - kneeY) * 0.5) * h);
 
-    const baseline = sampleColumn(sampleCtx, px, startY, startY + 8, 6, w, h);
+    // Wider sampling so pleats average out (was 12px, often inside a single pleat).
+    // Scale to hip width: ~22% of hip span, clamped.
+    const hipDistPx = Math.abs(rh.x - lh.x) * w;
+    const halfStrip = Math.max(20, Math.min(50, Math.floor(hipDistPx * 0.22)));
+
+    // Baseline taken from clearly-skirt area (35%–55% between hip and knee).
+    // Avoids waistband edge above and hem proximity below.
+    const baselineYTop = Math.floor((hipY + (kneeY - hipY) * 0.35) * h);
+    const baselineYBot = Math.floor((hipY + (kneeY - hipY) * 0.55) * h);
+    const baseline = sampleColumn(sampleCtx, px, baselineYTop, baselineYBot, halfStrip, w, h);
     if (!baseline) {
       updateCheck('skirt', 'warn', '計測できません', '色をうまく読み取れませんでした');
       return 'warn';
     }
-    const THRESHOLD = 45;
-    const REQUIRED = 4;
+
+    // Debug: show baseline sampling area as a faint cyan rectangle
+    ctx.strokeStyle = 'rgba(45, 27, 142, 0.55)';
+    ctx.lineWidth = Math.max(1.5, canvas.width / 500);
+    ctx.strokeRect(px - halfStrip, baselineYTop, halfStrip * 2, baselineYBot - baselineYTop);
+
+    const startY = baselineYBot;
+    const endY   = Math.floor((kneeY + (ankleY - kneeY) * 0.5) * h);
+    // Higher threshold + longer required run skip pleat shadow noise.
+    const THRESHOLD = 55;
+    const REQUIRED = 8;
     let consec = 0;
     let hemY = -1;
-    for (let y = startY + 8; y < endY && y < h; y++) {
-      const row = sampleColumn(sampleCtx, px, y, y + 1, 6, w, h);
+    for (let y = startY; y < endY && y < h; y++) {
+      const row = sampleColumn(sampleCtx, px, y, y + 1, halfStrip, w, h);
       if (!row) continue;
       if (colorDelta(row, baseline) > THRESHOLD) {
         if (++consec >= REQUIRED) {
