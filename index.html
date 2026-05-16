@@ -2156,20 +2156,36 @@
     const w = sampleCanvas.width, h = sampleCanvas.height;
     const cx = (lh.x + rh.x) / 2;
     const px = Math.floor(cx * w);
-    const startY = Math.floor((hipY + (kneeY - hipY) * 0.25) * h);
-    const endY   = Math.floor((kneeY + (ankleY - kneeY) * 0.5) * h);
 
-    const baseline = sampleColumn(sampleCtx, px, startY, startY + 8, 6, w, h);
+    // Wider sampling so pleats average out (was 12px, often inside a single pleat).
+    // Scale to hip width: ~22% of hip span, clamped.
+    const hipDistPx = Math.abs(rh.x - lh.x) * w;
+    const halfStrip = Math.max(20, Math.min(50, Math.floor(hipDistPx * 0.22)));
+
+    // Baseline taken from clearly-skirt area (35%–55% between hip and knee).
+    // Avoids waistband edge above and hem proximity below.
+    const baselineYTop = Math.floor((hipY + (kneeY - hipY) * 0.35) * h);
+    const baselineYBot = Math.floor((hipY + (kneeY - hipY) * 0.55) * h);
+    const baseline = sampleColumn(sampleCtx, px, baselineYTop, baselineYBot, halfStrip, w, h);
     if (!baseline) {
       updateCheck('skirt', 'warn', '計測できません', '色をうまく読み取れませんでした');
       return 'warn';
     }
-    const THRESHOLD = 45;
-    const REQUIRED = 4;
+
+    // Debug: show baseline sampling area as a faint cyan rectangle
+    ctx.strokeStyle = 'rgba(45, 27, 142, 0.55)';
+    ctx.lineWidth = Math.max(1.5, canvas.width / 500);
+    ctx.strokeRect(px - halfStrip, baselineYTop, halfStrip * 2, baselineYBot - baselineYTop);
+
+    const startY = baselineYBot;
+    const endY   = Math.floor((kneeY + (ankleY - kneeY) * 0.5) * h);
+    // Higher threshold + longer required run skip pleat shadow noise.
+    const THRESHOLD = 55;
+    const REQUIRED = 8;
     let consec = 0;
     let hemY = -1;
-    for (let y = startY + 8; y < endY && y < h; y++) {
-      const row = sampleColumn(sampleCtx, px, y, y + 1, 6, w, h);
+    for (let y = startY; y < endY && y < h; y++) {
+      const row = sampleColumn(sampleCtx, px, y, y + 1, halfStrip, w, h);
       if (!row) continue;
       if (colorDelta(row, baseline) > THRESHOLD) {
         if (++consec >= REQUIRED) {
